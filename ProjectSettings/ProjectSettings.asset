@@ -740,7 +740,13 @@ PlayerSettings:
   XboxOneOverrideIdentityPublisher: 
   vrEditorSettings: {}
   cloudServicesEnabled:
+    Build: 0
+    Game Performance: 0
+    Legacy Analytics: 0
+    Purchasing: 0
+    UDP: 0
     UNet: 1
+    Unity Ads: 0
   luminIcon:
     m_Name: 
     m_ModelFolderPath: 
@@ -762,11 +768,11 @@ PlayerSettings:
   captureStartupLogs: {}
   activeInputHandler: 2
   windowsGamepadBackendHint: 0
-  cloudProjectId: 7d0fdb76-d9d1-4ca7-bfc2-648d8f06e849
+  cloudProjectId: aa4364a1-58af-40e2-8eca-02cb6310229c
   framebufferDepthMemorylessMode: 0
   qualitySettingsNames: []
-  projectName: Galactic Blast 2025-10-28_22-00-37
-  organizationId: valrincon
+  projectName: Galactic Blast
+  organizationId: maxlee93
   cloudEnabled: 0
   legacyClampBlendShapeWeights: 0
   hmiLoadingImage: {fileID: 0}

@@ -1,0 +1,11 @@
+{
+    "asset": "4ea48e4444b414708bfd17301cb8215a",
+    "fileName": "019a3d59-8a5f-7228-8466-9f7be40ddcfe.pose.json",
+    "prompt": "particle system for a bomb explosion",
+    "negativePrompt": "",
+    "model": "9e46c009-67d8-4254-a3a0-32e3168247ee",
+    "modelName": "Text to Motion",
+    "customSeed": 402056249,
+    "w3CTraceId": "5f203eb0cef90a7f9c7068be612badef",
+    "isTrimmed": false
+}
