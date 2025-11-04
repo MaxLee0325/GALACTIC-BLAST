@@ -105,16 +105,39 @@ public class BombController : MonoBehaviour
 
     private void Explode()
     {
-        // Example explosion: Destroy nearby objects or add effects
-        Collider[] hitColliders = Physics.OverlapSphere(transform.position, blastRange);
-        foreach (var hit in hitColliders)
+        Collider[] hits = Physics.OverlapSphere(transform.position, blastRange);
+        foreach (var hit in hits)
         {
-            if (hit.CompareTag("Destructible")) // Tag your breakable objects
-            {
+            if (hit.CompareTag("Destructible"))
                 Destroy(hit.gameObject);
+
+            if (hit.attachedRigidbody)
+                hit.attachedRigidbody.AddExplosionForce(600f, transform.position, blastRange);
+        }
+
+        // --- Damage player if within range ---
+        // Try via colliders first
+        foreach (var hit in hits)
+        {
+            if (hit.CompareTag("Player"))
+            {
+                var hearts = hit.GetComponentInParent<PlayerHearts>();
+                if (hearts) hearts.TakeDamage(1);
             }
         }
-        // Optional: Add particle system or sound here
-        Destroy(gameObject, 0.5f); // Self-destruct after delay
+
+        // Fallback (for CharacterController-only players without a Collider):
+        GameObject player = GameObject.FindGameObjectWithTag("Player");
+        if (player)
+        {
+            float dist = Vector3.Distance(transform.position, player.transform.position);
+            if (dist <= blastRange)
+            {
+                var hearts = player.GetComponent<PlayerHearts>();
+                if (hearts) hearts.TakeDamage(1);
+            }
+        }
+
+        Destroy(gameObject, 0.3f);
     }
 }

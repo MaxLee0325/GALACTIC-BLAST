@@ -6,6 +6,11 @@ public class PlayerControl : MonoBehaviour
     public float speed = 5;
     public float rotationSpeed = 10f; // how fast the character turns
 
+    public GameObject bombPrefab;        // assign your Bomb prefab
+    public float bombCooldown = 0.75f;   // time between drops
+    public float spawnForward = 0.6f;    // a bit in front of feet
+    private float _lastBombTime = -999f;
+
     void Start()
     {
         anim = GetComponent<Animation>();
@@ -39,5 +44,23 @@ public class PlayerControl : MonoBehaviour
             // Stop animation when idle
             anim.Stop();
         }
+
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time - _lastBombTime >= bombCooldown)
+        {
+            DropBomb();
+            _lastBombTime = Time.time;
+        }
+    }
+
+    void DropBomb()
+    {
+        if (!bombPrefab) { Debug.LogWarning("No bombPrefab set on PlayerControl."); return; }
+
+        Vector3 spawnPos = transform.position + transform.forward * spawnForward + Vector3.up * 0.5f;
+        Quaternion spawnRot = Quaternion.identity;
+        Debug.Log(Vector3.up);
+        Debug.Log(spawnPos);
+
+        Instantiate(bombPrefab, spawnPos, spawnRot);
     }
 }
