@@ -252,7 +252,7 @@ GameObject:
   - component: {fileID: 8170090855720586996}
   - component: {fileID: 6418072695714058484}
   m_Layer: 0
-  m_Name: Bomb
+  m_Name: Bomb_Alan
   m_TagString: Bomb
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
