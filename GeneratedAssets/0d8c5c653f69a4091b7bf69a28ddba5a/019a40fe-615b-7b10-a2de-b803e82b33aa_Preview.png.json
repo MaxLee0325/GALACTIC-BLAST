@@ -1,0 +1,11 @@
+{
+    "asset": "0d8c5c653f69a4091b7bf69a28ddba5a",
+    "fileName": "019a40fe-615b-7b10-a2de-b803e82b33aa_Preview.png",
+    "prompt": "make it like explosion",
+    "negativePrompt": "",
+    "model": "44ec3749-963a-44b1-aa54-dc19f6ed8ab2",
+    "modelName": "Unity Texture2D",
+    "customSeed": 2004654599,
+    "w3CTraceId": "0a897474197064480ca0e5d5d9581bb0",
+    "refinementMode": "Generation"
+}

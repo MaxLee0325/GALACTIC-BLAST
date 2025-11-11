@@ -1,0 +1,11 @@
+{
+    "asset": "0d8c5c653f69a4091b7bf69a28ddba5a",
+    "fileName": "019a40fc-c54e-7764-898e-7b2b3b747de6_Preview.png",
+    "prompt": "make it like fire",
+    "negativePrompt": "",
+    "model": "44ec3749-963a-44b1-aa54-dc19f6ed8ab2",
+    "modelName": "Unity Texture2D",
+    "customSeed": 776064054,
+    "w3CTraceId": "7bb02a9ed26d46dfdf9450a4856d2b61",
+    "refinementMode": "Generation"
+}
