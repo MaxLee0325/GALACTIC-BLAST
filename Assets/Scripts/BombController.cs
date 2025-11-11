@@ -233,6 +233,7 @@ public class BombController : MonoBehaviour
                 {
                     var hearts = hit.collider.GetComponentInParent<PlayerHearts>();
                     if (hearts) hearts.TakeDamage(1);
+                    Debug.Log("Player takes damage!");
                 }
             }
 
@@ -271,13 +272,20 @@ public class BombController : MonoBehaviour
     private IEnumerator AnimateBeamGrowth(LineRenderer lr, Vector3 endPoint, float duration)
     {
         float elapsed = 0f;
+
         while (elapsed < duration)
         {
+            if (lr == null)       // ✅ If destroyed, stop coroutine
+                yield break;
+
             elapsed += Time.deltaTime;
+
             lr.SetPosition(1, Vector3.Lerp(transform.position, endPoint, elapsed / duration));
+
             yield return null;
         }
     }
+
 
     private void FlashBombMesh()
     {
