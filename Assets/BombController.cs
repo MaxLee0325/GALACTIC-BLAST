@@ -83,7 +83,7 @@ public class BombController : MonoBehaviour
         previewVisible = Mathf.Sin(blinkTimer) > 0;
 
         // Show blast preview
-        if (!hasExploded)
+        if(!hasExploded)
         {
             ShowBlastPreview();
         }
@@ -196,7 +196,7 @@ public class BombController : MonoBehaviour
 
         // Destroy bomb after short delay to allow audio/flash
         Destroy(gameObject, 0.5f);
-
+        
     }
 
     private void DrawExplosionBeams()
@@ -215,12 +215,7 @@ public class BombController : MonoBehaviour
             {
                 if (hit.collider == null || hit.collider == selfCollider) continue;
 
-                if (hit.collider.CompareTag("Player"))
-                {
-                    var hearts = hit.GetComponentInParent<PlayerHearts>();
-                    if (hearts) hearts.TakeDamage(1);
-                }
-                else if (hit.collider.CompareTag("Wall"))
+                if (hit.collider.CompareTag("Wall"))
                 {
                     endPoint = hit.point;
                     break;
