@@ -1,143 +1,291 @@
 using UnityEngine;
-using TMPro; // Required if using TextMeshPro
+using TMPro;
+using System.Collections;
 
 public class BombController : MonoBehaviour
 {
-    public float explosionTime = 4f;     // Total time before boom
+    [Header("Explosion Settings")]
+    public float explosionTime = 4f;       // Time before explosion
     public float blastRange = 2f;
-    
-    [Header("Pulse Animation")]
-    public float pulseSpeed = 3f;        // Speed of the pulsing (higher = faster)
-    public float pulseAmplitude = 0.05f;  // How much it swells/shrinks (0.1-0.2 recommended for subtle drama)
+    public GameObject blastBeamPrefab;     // Prefab with LineRenderer
+    public float beamDuration = 0.3f;      // Explosion beam duration
 
-    private TextMeshProUGUI countdownText; // Reference to the child UI text
-    private Vector3 initialScale;          // Store original scale for animation baseline
+    [Header("Beam Visuals")]
+    public Gradient beamColorGradient;
+    public float beamStartWidth = 0.8f;
+    public float beamEndWidth = 0.1f;
+
+    [Header("Pulse Animation")]
+    public float pulseSpeed = 3f;
+    public float pulseAmplitude = 0.05f;
+
+    [Header("Preview Settings")]
+    public float previewStartWidth = 0.15f;
+    public float previewEndWidth = 0.15f;
+
+    [SerializeField] private AudioSource explosionAudio;
+
+    private TextMeshProUGUI countdownText;
+    private Vector3 initialScale;
+    private bool hasExploded = false;
+
+    // Separate arrays for preview and explosion
+    private GameObject[] previewBeams;
+    public GameObject PreviewBeamPrefab;     // Prefab with LineRenderer
+    private float blinkTimer = 0f;
+    private bool previewVisible = true;
 
     void Start()
     {
-        initialScale = transform.localScale; // Capture starting scale (usually 1,1,1)
-        
-        // Find the child canvas and the text component
+        initialScale = transform.localScale;
         countdownText = GetComponentInChildren<TextMeshProUGUI>();
-
         if (countdownText != null)
         {
-            // Position the text GameObject right above the bomb (adjust 1f based on your bomb's radius/scale)
-            countdownText.transform.localPosition = new Vector3(0, 1f, 0); // 1 unit above center; e.g., for radius 0.5f sphere
-            
-            // Fix text scale to prevent it from pulsing with the bomb
-            countdownText.transform.localScale = Vector3.one; // Or set to your desired fixed size, e.g., (0.01, 0.01, 0.01) for World Space Canvas
-            
-            countdownText.text = "";
+            countdownText.transform.localPosition = new Vector3(0, 1f, 0);
+            countdownText.transform.localScale = Vector3.one;
             countdownText.alignment = TextAlignmentOptions.Center;
         }
-        else
+
+        // Default gradient if none set
+        if (beamColorGradient == null || beamColorGradient.colorKeys.Length == 0)
         {
-            Debug.LogError("No TextMeshProUGUI found as child! Check hierarchy."); // Debug: Missing component
+            beamColorGradient = new Gradient();
+            GradientColorKey[] colorKeys = new GradientColorKey[3];
+            colorKeys[0].color = new Color(1f, 0.5f, 0f, 1f);
+            colorKeys[0].time = 0f;
+            colorKeys[1].color = Color.yellow;
+            colorKeys[1].time = 0.5f;
+            colorKeys[2].color = Color.yellow;
+            colorKeys[2].time = 1f;
+
+            GradientAlphaKey[] alphaKeys = new GradientAlphaKey[3];
+            alphaKeys[0].alpha = 1f; alphaKeys[0].time = 0f;
+            alphaKeys[1].alpha = 1f; alphaKeys[1].time = 0.5f;
+            alphaKeys[2].alpha = 0f; alphaKeys[2].time = 1f;
+
+            beamColorGradient.SetKeys(colorKeys, alphaKeys);
         }
     }
 
     void Update()
     {
-        // Pulsing animation: Sine wave for breathing effect only (no net growth)
-        if (explosionTime > 0f)
+        // Pulsing animation
+        float pulse = Mathf.Sin(Time.time * pulseSpeed) * pulseAmplitude;
+        transform.localScale = initialScale * (1f + pulse);
+
+        // Countdown
+        explosionTime -= Time.deltaTime;
+        UpdateCountdownText();
+
+        // Preview blinking speed
+        float blinkSpeed = explosionTime <= 0.6f ? 10f : (explosionTime <= 2f ? 4f : 2f);
+        blinkTimer += Time.deltaTime * blinkSpeed;
+        previewVisible = Mathf.Sin(blinkTimer) > 0;
+
+        // Show blast preview
+        if(!hasExploded)
         {
-            float pulse = Mathf.Sin(Time.time * pulseSpeed) * pulseAmplitude;
-            Vector3 scale = initialScale * (1f + pulse);
-            transform.localScale = scale;
+            ShowBlastPreview();
         }
 
-        // Billboard effect (make the text face the camera)
+        // Make countdown face camera
         if (countdownText != null && Camera.main != null)
         {
             countdownText.transform.LookAt(Camera.main.transform);
-            countdownText.transform.Rotate(0, 180, 0); // Correct the reversed facing
+            countdownText.transform.Rotate(0, 180, 0);
         }
 
-        // Countdown timer
-        explosionTime -= Time.deltaTime;
-
-        // Fixed logic: Use descending thresholds for exclusivity
-        if (explosionTime <= 0f)
+        if (explosionTime <= 0f && !hasExploded)
         {
-            if (countdownText != null)
-            {
-                countdownText.text = "BOOM";
-                countdownText.color = Color.red;
-            }
-            // Optional: Trigger explosion (e.g., damage nearby, particles)
+            countdownText.text = "BOOM";
+            countdownText.color = Color.red;
             Explode();
-            enabled = false; // Stop this script after boom
         }
-        else if (explosionTime < 1f)
+    }
+
+    private void UpdateCountdownText()
+    {
+        if (countdownText == null) return;
+
+        if (explosionTime > 3f)
         {
-            if (countdownText != null)
-            {
-                countdownText.text = "1";
-                countdownText.color = Color.yellow;
-            }
+            countdownText.text = "4";
+            countdownText.color = Color.green;
         }
-        else if (explosionTime < 2f)
+        else if (explosionTime > 2f)
         {
-            if (countdownText != null)
-            {
-                countdownText.text = "2";
-                countdownText.color = Color.green;
-            }
+            countdownText.text = "3";
+            countdownText.color = Color.green;
         }
-        else if (explosionTime < 3f)
+        else if (explosionTime > 1f)
         {
-            if (countdownText != null)
-            {
-                countdownText.text = "3";
-                countdownText.color = Color.white;
-            }
+            countdownText.text = "2";
+            countdownText.color = Color.yellow;
         }
-        else // Covers 4f to 3f
+        else if (explosionTime > 0f)
         {
-            if (countdownText != null)
+            countdownText.text = "1";
+            countdownText.color = Color.red;
+        }
+    }
+
+    private void ShowBlastPreview()
+    {
+        if (blastBeamPrefab == null) return;
+
+        if (previewBeams == null) previewBeams = new GameObject[4];
+
+        Vector3[] directions = { Vector3.forward, Vector3.back, Vector3.right, Vector3.left };
+
+        for (int i = 0; i < directions.Length; i++)
+        {
+            Vector3 dir = directions[i];
+            Vector3 endPoint = transform.position + dir * blastRange;
+
+            if (Physics.Raycast(transform.position, dir, out RaycastHit hit, blastRange))
             {
-                countdownText.text = "4";
-                countdownText.color = Color.white;
+                if (hit.collider.CompareTag("Wall"))
+                    endPoint = hit.point;
             }
+
+            if (previewBeams[i] == null)
+            {
+                previewBeams[i] = Instantiate(PreviewBeamPrefab, transform.position, Quaternion.identity);
+                LineRenderer lr = previewBeams[i].GetComponent<LineRenderer>();
+                lr.positionCount = 2;
+                lr.startWidth = previewStartWidth;
+                lr.endWidth = previewEndWidth;
+                lr.useWorldSpace = true;
+            }
+
+            LineRenderer line = previewBeams[i].GetComponent<LineRenderer>();
+            line.SetPosition(0, transform.position);
+            line.SetPosition(1, endPoint);
+            line.colorGradient = beamColorGradient;
+            line.gameObject.SetActive(previewVisible);
         }
     }
 
     private void Explode()
     {
-        Collider[] hits = Physics.OverlapSphere(transform.position, blastRange);
-        foreach (var hit in hits)
-        {
-            if (hit.CompareTag("Destructible"))
-                Destroy(hit.gameObject);
+        if (hasExploded) return;
+        hasExploded = true;
 
-            if (hit.attachedRigidbody)
-                hit.attachedRigidbody.AddExplosionForce(600f, transform.position, blastRange);
+        // Destroy preview beams
+        if (previewBeams != null)
+        {
+            foreach (var beam in previewBeams)
+                if (beam != null) Destroy(beam);
         }
 
-        // --- Damage player if within range ---
-        // Try via colliders first
-        foreach (var hit in hits)
+        DrawExplosionBeams();
+        FlashBombMesh();
+
+        if (previewBeams != null)
         {
-            if (hit.CompareTag("Player"))
+            foreach (GameObject beam in previewBeams)
             {
-                var hearts = hit.GetComponentInParent<PlayerHearts>();
-                if (hearts) hearts.TakeDamage(1);
+                if (beam != null)
+                {
+                    Destroy(beam);
+                }
             }
         }
 
-        // Fallback (for CharacterController-only players without a Collider):
-        GameObject player = GameObject.FindGameObjectWithTag("Player");
-        if (player)
+        explosionAudio?.Play();
+
+        // Destroy bomb after short delay to allow audio/flash
+        Destroy(gameObject, 0.5f);
+        
+    }
+
+    private void DrawExplosionBeams()
+    {
+        Collider selfCollider = GetComponent<Collider>();
+        Vector3[] directions = { Vector3.forward, Vector3.back, Vector3.right, Vector3.left };
+
+        foreach (var dir in directions)
         {
-            float dist = Vector3.Distance(transform.position, player.transform.position);
-            if (dist <= blastRange)
+            Vector3 endPoint = transform.position + dir * blastRange;
+            Ray ray = new Ray(transform.position, dir);
+            RaycastHit[] hits = Physics.RaycastAll(ray, blastRange);
+            System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+
+            foreach (var hit in hits)
             {
-                var hearts = player.GetComponent<PlayerHearts>();
-                if (hearts) hearts.TakeDamage(1);
+                if (hit.collider == null || hit.collider == selfCollider) continue;
+
+                if (hit.collider.CompareTag("Wall"))
+                {
+                    endPoint = hit.point;
+                    break;
+                }
+                else if (hit.collider.CompareTag("Destructible"))
+                {
+                    Destroy(hit.collider.gameObject);
+                }
+                else if (hit.collider.CompareTag("Bomb"))
+                {
+                    BombController other = hit.collider.GetComponent<BombController>();
+                    if (other != null && other != this) other.Explode();
+                }
+                else if (hit.collider.CompareTag("Player"))
+                {
+                    var hearts = hit.collider.GetComponentInParent<PlayerHearts>();
+                    if (hearts) hearts.TakeDamage(1);
+                }
+            }
+
+            // Fallback (for CharacterController-only players without a Collider):
+            GameObject player = GameObject.FindGameObjectWithTag("Player");
+            if (player)
+            {
+                float dist = Vector3.Distance(transform.position, player.transform.position);
+                if (dist <= blastRange)
+                {
+                    var hearts = player.GetComponent<PlayerHearts>();
+                    if (hearts) hearts.TakeDamage(1);
+                }
+            }
+
+            // Create explosion beam
+            if (blastBeamPrefab != null)
+            {
+                GameObject beam = Instantiate(blastBeamPrefab, transform.position, Quaternion.identity);
+                LineRenderer lr = beam.GetComponent<LineRenderer>();
+                if (lr != null)
+                {
+                    lr.positionCount = 2;
+                    lr.SetPosition(0, transform.position);
+                    lr.SetPosition(1, transform.position); // Start at bomb
+                    lr.startWidth = beamStartWidth;
+                    lr.endWidth = beamEndWidth;
+                    lr.colorGradient = beamColorGradient;
+                    StartCoroutine(AnimateBeamGrowth(lr, endPoint, beamDuration));
+                }
+                Destroy(beam, beamDuration);
             }
         }
+    }
 
-        Destroy(gameObject, 0.3f);
+    private IEnumerator AnimateBeamGrowth(LineRenderer lr, Vector3 endPoint, float duration)
+    {
+        float elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            lr.SetPosition(1, Vector3.Lerp(transform.position, endPoint, elapsed / duration));
+            yield return null;
+        }
+    }
+
+    private void FlashBombMesh()
+    {
+        Renderer r = GetComponent<Renderer>();
+        if (r != null && r.material.HasProperty("_EmissionColor"))
+        {
+            r.material.EnableKeyword("_EMISSION");
+            r.material.SetColor("_EmissionColor", Color.white * 10f);
+        }
     }
 }
