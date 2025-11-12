@@ -16,6 +16,9 @@ public class PlayerHearts : MonoBehaviour
     [Header("Optional")]
     public bool clampToMaxList = true; // if true, only first N images are used
 
+    public float damageCooldown = 0.4f;
+    float lastHitTime = -999f;
+
     void Awake()
     {
         currentHearts = Mathf.Clamp(currentHearts, 0, maxHearts);
@@ -24,6 +27,9 @@ public class PlayerHearts : MonoBehaviour
 
     public void TakeDamage(int amount = 1)
     {
+        if (Time.time - lastHitTime < damageCooldown) return;
+        lastHitTime = Time.time;
+
         if (currentHearts <= 0) return;
         currentHearts = Mathf.Max(0, currentHearts - Mathf.Abs(amount));
         RefreshUI();
