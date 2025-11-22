@@ -7,6 +7,9 @@ public class PlayerControl : MonoBehaviour
     public float rotationSpeed = 10f; // how fast the character turns
 
     public GameObject bombPrefab;        // assign your Bomb prefab
+    public GameObject electricBombPrefab;        // assign your Bomb prefab
+    public GameObject fireBombPrefab;        // assign your Bomb prefab
+    public GameObject waterBombPrefab;        // assign your Bomb prefab
     public float bombCooldown = 0.75f;   // time between drops
     public float spawnForward = 0.6f;    // a bit in front of feet
     private float _lastBombTime = -999f;
@@ -47,12 +50,30 @@ public class PlayerControl : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && Time.time - _lastBombTime >= bombCooldown)
         {
-            DropBomb();
+            DropBomb('B');
+            _lastBombTime = Time.time;
+        }
+
+        if (Input.GetKeyDown(KeyCode.E) && Time.time - _lastBombTime >= bombCooldown)
+        {
+            DropBomb('E');
+            _lastBombTime = Time.time;
+        }
+                
+        if (Input.GetKeyDown(KeyCode.R) && Time.time - _lastBombTime >= bombCooldown)
+        {
+            DropBomb('F');
+            _lastBombTime = Time.time;
+        }
+
+        if (Input.GetKeyDown(KeyCode.T) && Time.time - _lastBombTime >= bombCooldown)
+        {
+            DropBomb('W');
             _lastBombTime = Time.time;
         }
     }
 
-    void DropBomb()
+    void DropBomb(char bombType)
     {
         if (!bombPrefab) { Debug.LogWarning("No bombPrefab set on PlayerControl."); return; }
 
@@ -61,6 +82,23 @@ public class PlayerControl : MonoBehaviour
         Debug.Log(Vector3.up);
         Debug.Log(spawnPos);
 
-        Instantiate(bombPrefab, spawnPos, spawnRot);
+        switch (bombType)
+            {
+                case 'B': // Normal Bomb
+                    Instantiate(bombPrefab, spawnPos, spawnRot);
+                    break;
+                case 'E': // Electric Bomb
+                    Instantiate(electricBombPrefab, spawnPos, spawnRot);
+                    break;
+                case 'F': // Fire Bomb
+                    Instantiate(fireBombPrefab, spawnPos, spawnRot);
+                    break;
+                case 'W': // Water Bomb
+                    Instantiate(waterBombPrefab, spawnPos, spawnRot);
+                    break;
+                default:
+                    Debug.LogWarning("Unknown bomb type: " + bombType);
+                    return;
+            }
     }
 }

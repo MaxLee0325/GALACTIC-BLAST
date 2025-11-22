@@ -35,6 +35,11 @@ public class BombController : MonoBehaviour
     private float blinkTimer = 0f;
     private bool previewVisible = true;
 
+    [Header("Ground Effects")]
+    public GameObject burningGroundPrefab;
+    public GameObject wetGroundPrefab;
+    public GameObject ElectrifiedWaterGroundPrefab;
+
     void Start()
     {
         initialScale = transform.localScale;
@@ -178,6 +183,19 @@ public class BombController : MonoBehaviour
                 if (beam != null) Destroy(beam);
         }
 
+        // Instantiate ground effect based on tag
+        Vector3 groundPosition = new Vector3(transform.position.x, -0.412f, transform.position.z);
+
+        if (CompareTag("FireBomb") && burningGroundPrefab != null)
+        {
+            Instantiate(burningGroundPrefab, groundPosition, Quaternion.identity);
+        }
+        else if (CompareTag("WaterBomb") && wetGroundPrefab != null)
+        {
+            Instantiate(wetGroundPrefab, groundPosition, Quaternion.identity);
+        }
+
+
         DrawExplosionBeams();
         FlashBombMesh();
 
@@ -235,6 +253,21 @@ public class BombController : MonoBehaviour
                     if (hearts) hearts.TakeDamage(1);
                     Debug.Log("Player takes damage!");
                 }
+                else if (CompareTag("ElectricBomb") && hit.collider.CompareTag("WetGround"))
+                {
+                    // Save position before destroying
+                    Vector3 pos = hit.collider.transform.position;
+
+                    // Destroy the wet ground
+                    Destroy(hit.collider.gameObject);
+
+                    // Instantiate electrified version
+                    if (ElectrifiedWaterGroundPrefab != null) // Make sure you have assigned this prefab
+                    {
+                        Instantiate(ElectrifiedWaterGroundPrefab, pos, Quaternion.identity);
+                        Debug.Log("WetGround electrified!");
+                    }
+                }
             }
 
             // Fallback (for CharacterController-only players without a Collider):
@@ -275,7 +308,7 @@ public class BombController : MonoBehaviour
 
         while (elapsed < duration)
         {
-            if (lr == null)       // ✅ If destroyed, stop coroutine
+            if (lr == null)    
                 yield break;
 
             elapsed += Time.deltaTime;
