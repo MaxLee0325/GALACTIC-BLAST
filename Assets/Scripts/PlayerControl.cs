@@ -14,6 +14,15 @@ public class PlayerControl : MonoBehaviour
     public float spawnForward = 0.6f;    // a bit in front of feet
     private float _lastBombTime = -999f;
 
+    //Scout Ability
+    private bool scoutBoostActive = false;
+    private float scoutBoostDuration = 15f;
+    private float scoutBoostMultiplier = 1.2f;
+
+    //Boost Ability
+    private bool medicAbilityActive = false;
+    public float medicAbilityDuration = 25f;
+
     void Start()
     {
         anim = GetComponent<Animation>();
@@ -71,6 +80,34 @@ public class PlayerControl : MonoBehaviour
             DropBomb('W');
             _lastBombTime = Time.time;
         }
+    }
+
+    // -------------- SCOUT BOOST TRIGGER --------------
+    private void OnTriggerEnter(Collider other)
+    {
+        if (other.CompareTag("ScoutAbility"))
+        {
+            Debug.Log("ScoutAbility activated");
+            Destroy(other.gameObject);  // remove pickup
+            StartCoroutine(ApplyScoutBoost());
+        }
+    }
+
+    private System.Collections.IEnumerator ApplyScoutBoost()
+    {
+        if (scoutBoostActive) yield break; // prevent stacking
+
+        scoutBoostActive = true;
+        speed *= scoutBoostMultiplier; // increase speed
+
+        Debug.Log("Scout boost activated! Speed increased by 20%");
+
+        yield return new WaitForSeconds(scoutBoostDuration);
+
+        speed /= scoutBoostMultiplier; // reset to normal
+        scoutBoostActive = false;
+
+        Debug.Log("Scout boost expired.");
     }
 
     void DropBomb(char bombType)
