@@ -119,6 +119,7 @@ GameObject:
   - component: {fileID: 7083632306785251786}
   - component: {fileID: 7338453235834408179}
   - component: {fileID: 4653642145029673766}
+  - component: {fileID: -7927130674430518019}
   m_Layer: 0
   m_Name: WaterBomb
   m_TagString: WaterBomb
@@ -4985,6 +4986,27 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!135 &-7927130674430518019
+SphereCollider:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4263124922590087620}
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_LayerOverridePriority: 0
+  m_IsTrigger: 1
+  m_ProvidesContacts: 0
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Radius: 0.5
+  m_Center: {x: 0, y: 0, z: 0}
 --- !u!1 &6418610362076727527
 GameObject:
   m_ObjectHideFlags: 0

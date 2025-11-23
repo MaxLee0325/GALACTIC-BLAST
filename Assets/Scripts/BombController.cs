@@ -379,4 +379,30 @@ public class BombController : MonoBehaviour
             r.material.SetColor("_EmissionColor", Color.white * 10f);
         }
     }
+
+    public void Defuse()
+    {
+        if (hasExploded) return;
+        hasExploded = true;
+
+        // Remove preview beams
+        if (previewBeams != null)
+        {
+            foreach (var beam in previewBeams)
+                if (beam != null) Destroy(beam);
+        }
+
+        // Optional: show DEFUSED text
+        if (countdownText != null)
+        {
+            countdownText.text = "DEFUSED";
+            countdownText.color = Color.cyan;
+        }
+
+        // No explosion effects, no ground effects, no damage
+        explosionAudio?.Stop();
+
+        // Destroy bomb shortly after defuse
+        Destroy(gameObject, 0.2f);
+    }
 }

@@ -91,6 +91,24 @@ public class PlayerControl : MonoBehaviour
             Destroy(other.gameObject);  // remove pickup
             StartCoroutine(ApplyScoutBoost());
         }
+
+        // Medic ability pickup
+        if (other.CompareTag("MedicAbility"))
+        {
+            Debug.Log("MedicAbility activated");
+            Destroy(other.gameObject);
+            StartCoroutine(ApplyMedicAbility());
+        }
+
+        if (medicAbilityActive && (other.CompareTag("Bomb") || other.CompareTag("WaterBomb") || other.CompareTag("FireBomb") || other.CompareTag("ElectricBomb")))
+        {
+            BombController bomb = other.GetComponent<BombController>();
+            if (bomb != null)
+            {
+                bomb.Defuse();
+                Debug.Log("Bomb defused by MedicAbility!");
+            }
+        }
     }
 
     private System.Collections.IEnumerator ApplyScoutBoost()
@@ -108,6 +126,19 @@ public class PlayerControl : MonoBehaviour
         scoutBoostActive = false;
 
         Debug.Log("Scout boost expired.");
+    }
+
+    private System.Collections.IEnumerator ApplyMedicAbility()
+    {
+        if (medicAbilityActive) yield break;
+
+        medicAbilityActive = true;
+        Debug.Log("Medic ability active for " + medicAbilityDuration + " seconds.");
+
+        yield return new WaitForSeconds(medicAbilityDuration);
+
+        medicAbilityActive = false;
+        Debug.Log("Medic ability expired.");
     }
 
     void DropBomb(char bombType)

@@ -17,6 +17,8 @@ TagManager:
   - LightningChainVisual
   - StunEffect
   - IceBarrier
+  - ScoutAbility
+  - MedicAbility
   layers:
   - Default
   - TransparentFX
