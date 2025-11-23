@@ -312,6 +312,12 @@ public class BombController : MonoBehaviour
                 //     if (ed) mt.Open();
                 //     Debug.Log("Electronic Door Opened!");
                 // }
+                // else if (CompareTag("ElectricBomb") && hit.collider.CompareTag("Enemy"))
+                // {
+                //     var em = hit.collider.GetComponentInParent<Enemy>();
+                //     if (em) em.takeElectricDamage();
+                //     Debug.Log("ElectricChainDamage to enemy!");
+                // }
             }
 
             // Fallback (for CharacterController-only players without a Collider):
