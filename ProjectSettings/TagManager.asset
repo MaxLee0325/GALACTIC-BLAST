@@ -16,6 +16,7 @@ TagManager:
   - ElectrifiedWaterGround
   - LightningChainVisual
   - StunEffect
+  - IceBarrier
   layers:
   - Default
   - TransparentFX
