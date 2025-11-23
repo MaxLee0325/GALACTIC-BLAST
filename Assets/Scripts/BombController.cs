@@ -186,11 +186,29 @@ public class BombController : MonoBehaviour
         // Instantiate ground effect based on tag
         Vector3 groundPosition = new Vector3(transform.position.x, -0.412f, transform.position.z);
 
-        if (CompareTag("FireBomb") && burningGroundPrefab != null)
+        // This ensures burning ground will not be created if the bomb is on wet ground
+        if (CompareTag("FireBomb"))
         {
-            Instantiate(burningGroundPrefab, groundPosition, Quaternion.identity);
+            bool touchingWet = false;
+
+            Collider[] hits = Physics.OverlapSphere(transform.position, 0.45f);
+            foreach (var h in hits)
+            {
+                if (h != null && h.CompareTag("WetGround"))
+                {
+                    touchingWet = true;
+                    break;
+                }
+            }
+
+            if (!touchingWet)
+            {
+                Instantiate(burningGroundPrefab, groundPosition, Quaternion.identity);
+            }
         }
-        else if (CompareTag("WaterBomb") && wetGroundPrefab != null)
+
+
+        else if (CompareTag("WaterBomb"))
         {
             Instantiate(wetGroundPrefab, groundPosition, Quaternion.identity);
         }
@@ -268,6 +286,32 @@ public class BombController : MonoBehaviour
                         Debug.Log("WetGround electrified!");
                     }
                 }
+                // Water counters fire
+                else if (CompareTag("WaterBomb") && hit.collider.CompareTag("BurningGround"))
+                {
+                    Destroy(hit.collider.gameObject);
+                }
+                // Ice barrier can only be destroyed by fire bomb
+                else if (CompareTag("FireBomb") && hit.collider.CompareTag("IceBarrier"))
+                {
+                    Destroy(hit.collider.gameObject);
+                }
+
+                //TODO: Wait for these objects to be created
+                // // Metal barrier has 2 health
+                // else if (hit.collider.CompareTag("MetalLocker"))
+                // {
+                //     var mt = hit.collider.GetComponentInParent<MetalLocker>();
+                //     if (mt) mt.TakeDamage(1);
+                //     Debug.Log("MetalLocker Got hit!");
+                // }
+                // // Electronic door can be opened by electric bomb
+                // else if (CompareTag("ElectricBomb") && hit.collider.CompareTag("ElectronicDoor"))
+                // {
+                //     var ed = hit.collider.GetComponentInParent<ElectricDoor>();
+                //     if (ed) mt.Open();
+                //     Debug.Log("Electronic Door Opened!");
+                // }
             }
 
             // Fallback (for CharacterController-only players without a Collider):

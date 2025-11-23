@@ -40,12 +40,6 @@ public class BurningGround : MonoBehaviour
         //     if (eh != null && !enemiesInside.Contains(eh))
         //         enemiesInside.Add(eh);
         // }
-
-        // Extinguish fire if touches wet ground
-        if (other.CompareTag("WetGround"))
-        {
-            Destroy(gameObject);
-        }
     }
 
     private void OnTriggerExit(Collider other)

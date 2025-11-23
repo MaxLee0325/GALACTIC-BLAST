@@ -237,7 +237,7 @@ GameObject:
   - component: {fileID: 183960134643507737}
   m_Layer: 0
   m_Name: ElectrifiedWaterGround
-  m_TagString: Untagged
+  m_TagString: ElectrifiedWaterGround
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
