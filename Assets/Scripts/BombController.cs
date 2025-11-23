@@ -35,6 +35,11 @@ public class BombController : MonoBehaviour
     private float blinkTimer = 0f;
     private bool previewVisible = true;
 
+    [Header("Ground Effects")]
+    public GameObject burningGroundPrefab;
+    public GameObject wetGroundPrefab;
+    public GameObject ElectrifiedWaterGroundPrefab;
+
     void Start()
     {
         initialScale = transform.localScale;
@@ -178,6 +183,37 @@ public class BombController : MonoBehaviour
                 if (beam != null) Destroy(beam);
         }
 
+        // Instantiate ground effect based on tag
+        Vector3 groundPosition = new Vector3(transform.position.x, -0.412f, transform.position.z);
+
+        // This ensures burning ground will not be created if the bomb is on wet ground
+        if (CompareTag("FireBomb"))
+        {
+            bool touchingWet = false;
+
+            Collider[] hits = Physics.OverlapSphere(transform.position, 0.45f);
+            foreach (var h in hits)
+            {
+                if (h != null && h.CompareTag("WetGround"))
+                {
+                    touchingWet = true;
+                    break;
+                }
+            }
+
+            if (!touchingWet)
+            {
+                Instantiate(burningGroundPrefab, groundPosition, Quaternion.identity);
+            }
+        }
+
+
+        else if (CompareTag("WaterBomb"))
+        {
+            Instantiate(wetGroundPrefab, groundPosition, Quaternion.identity);
+        }
+
+
         DrawExplosionBeams();
         FlashBombMesh();
 
@@ -235,6 +271,53 @@ public class BombController : MonoBehaviour
                     if (hearts) hearts.TakeDamage(1);
                     Debug.Log("Player takes damage!");
                 }
+                else if (CompareTag("ElectricBomb") && hit.collider.CompareTag("WetGround"))
+                {
+                    // Save position before destroying
+                    Vector3 pos = hit.collider.transform.position;
+
+                    // Destroy the wet ground
+                    Destroy(hit.collider.gameObject);
+
+                    // Instantiate electrified version
+                    if (ElectrifiedWaterGroundPrefab != null) // Make sure you have assigned this prefab
+                    {
+                        Instantiate(ElectrifiedWaterGroundPrefab, pos, Quaternion.identity);
+                        Debug.Log("WetGround electrified!");
+                    }
+                }
+                // Water counters fire
+                else if (CompareTag("WaterBomb") && hit.collider.CompareTag("BurningGround"))
+                {
+                    Destroy(hit.collider.gameObject);
+                }
+                // Ice barrier can only be destroyed by fire bomb
+                else if (CompareTag("FireBomb") && hit.collider.CompareTag("IceBarrier"))
+                {
+                    Destroy(hit.collider.gameObject);
+                }
+
+                //TODO: Wait for these objects to be created
+                // // Metal barrier has 2 health
+                // else if (hit.collider.CompareTag("MetalLocker"))
+                // {
+                //     var mt = hit.collider.GetComponentInParent<MetalLocker>();
+                //     if (mt) mt.TakeDamage(1);
+                //     Debug.Log("MetalLocker Got hit!");
+                // }
+                // // Electronic door can be opened by electric bomb
+                // else if (CompareTag("ElectricBomb") && hit.collider.CompareTag("ElectronicDoor"))
+                // {
+                //     var ed = hit.collider.GetComponentInParent<ElectricDoor>();
+                //     if (ed) mt.Open();
+                //     Debug.Log("Electronic Door Opened!");
+                // }
+                // else if (CompareTag("ElectricBomb") && hit.collider.CompareTag("Enemy"))
+                // {
+                //     var em = hit.collider.GetComponentInParent<Enemy>();
+                //     if (em) em.takeElectricDamage();
+                //     Debug.Log("ElectricChainDamage to enemy!");
+                // }
             }
 
             // Fallback (for CharacterController-only players without a Collider):
@@ -275,7 +358,7 @@ public class BombController : MonoBehaviour
 
         while (elapsed < duration)
         {
-            if (lr == null)       // ✅ If destroyed, stop coroutine
+            if (lr == null)    
                 yield break;
 
             elapsed += Time.deltaTime;
