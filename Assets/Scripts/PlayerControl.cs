@@ -13,6 +13,8 @@ public class PlayerControl : MonoBehaviour
     public float bombCooldown = 0.75f;   // time between drops
     public float spawnForward = 0.6f;    // a bit in front of feet
     private float _lastBombTime = -999f;
+    private enum BombType { Normal, Electric, Fire, Water }
+    private BombType currentBombType = BombType.Normal;
 
     void Start()
     {
@@ -50,55 +52,59 @@ public class PlayerControl : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && Time.time - _lastBombTime >= bombCooldown)
         {
-            DropBomb('B');
-            _lastBombTime = Time.time;
-        }
-
-        if (Input.GetKeyDown(KeyCode.E) && Time.time - _lastBombTime >= bombCooldown)
-        {
-            DropBomb('E');
-            _lastBombTime = Time.time;
-        }
-                
-        if (Input.GetKeyDown(KeyCode.R) && Time.time - _lastBombTime >= bombCooldown)
-        {
-            DropBomb('F');
-            _lastBombTime = Time.time;
-        }
-
-        if (Input.GetKeyDown(KeyCode.T) && Time.time - _lastBombTime >= bombCooldown)
-        {
-            DropBomb('W');
+            DropBomb();
             _lastBombTime = Time.time;
         }
     }
 
-    void DropBomb(char bombType)
+    private void OnTriggerEnter(Collider other)
+    {
+        // Water power-up
+        if (other.CompareTag("PowerUp_Water"))
+        {
+            currentBombType = BombType.Water;
+            Debug.Log("Picked up WATER power-up! Now dropping Water Bombs.");
+            Destroy(other.gameObject);
+        }
+        // Fire power-up
+        else if (other.CompareTag("PowerUp_Fire"))
+        {
+            currentBombType = BombType.Fire;
+            Debug.Log("Picked up FIRE power-up! Now dropping Fire Bombs.");
+            Destroy(other.gameObject);
+        }
+        // Electric power-up
+        else if (other.CompareTag("PowerUp_Electric"))
+        {
+            currentBombType = BombType.Electric;
+            Debug.Log("Picked up ELECTRIC power-up! Now dropping Electric Bombs.");
+            Destroy(other.gameObject);
+        }
+    }
+
+    void DropBomb()
     {
         if (!bombPrefab) { Debug.LogWarning("No bombPrefab set on PlayerControl."); return; }
 
-        Vector3 spawnPos = transform.position + transform.forward * spawnForward + Vector3.up * 0.5f;
+        Vector3 spawnPos = transform.position + transform.forward * 1f + Vector3.up * 0.5f;
         Quaternion spawnRot = Quaternion.identity;
         Debug.Log(Vector3.up);
         Debug.Log(spawnPos);
 
-        switch (bombType)
+        switch (currentBombType)
             {
-                case 'B': // Normal Bomb
+                case BombType.Normal: // Normal Bomb
                     Instantiate(bombPrefab, spawnPos, spawnRot);
                     break;
-                case 'E': // Electric Bomb
+                case BombType.Electric: // Electric Bomb
                     Instantiate(electricBombPrefab, spawnPos, spawnRot);
                     break;
-                case 'F': // Fire Bomb
+                case BombType.Fire: // Fire Bomb
                     Instantiate(fireBombPrefab, spawnPos, spawnRot);
                     break;
-                case 'W': // Water Bomb
+                case BombType.Water: // Water Bomb
                     Instantiate(waterBombPrefab, spawnPos, spawnRot);
                     break;
-                default:
-                    Debug.LogWarning("Unknown bomb type: " + bombType);
-                    return;
             }
     }
 }
