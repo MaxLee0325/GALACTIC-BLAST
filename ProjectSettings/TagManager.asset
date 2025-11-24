@@ -8,7 +8,15 @@ TagManager:
   - Destructible
   - Bomb
   - Enemy
-  - Goal
+  - WaterBomb
+  - FireBomb
+  - ElectricBomb
+  - BurningGround
+  - WetGround
+  - ElectrifiedWaterGround
+  - LightningChainVisual
+  - StunEffect
+  - IceBarrier
   layers:
   - Default
   - TransparentFX
