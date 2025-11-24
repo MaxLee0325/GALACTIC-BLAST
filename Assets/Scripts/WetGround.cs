@@ -5,7 +5,7 @@ public class WetGround : MonoBehaviour
 {
     [Header("Slow Settings")]
     public float slowMultiplier = 0.5f;   // reduce to 50%
-    public float lifeTime = 3f;
+    public float lifeTime = 5f;
 
     // Track players and their original speed
     private Dictionary<PlayerControl, float> playersInside = new Dictionary<PlayerControl, float>();

@@ -8,7 +8,7 @@ public class ElectrifiedWaterGround : MonoBehaviour
     public float stunDuration = 1f;
     public float damageInterval = 1f;
     public int damageAmount = 1;
-    public float lifeTime = 3f;
+    public float lifeTime = 4f;
 
     public GameObject stunEffectPrefab;   // 🔥 assign in Inspector
 
@@ -138,7 +138,7 @@ public class ElectrifiedWaterGround : MonoBehaviour
         {
             if (kvp.Key != null)
                 kvp.Key.speed = kvp.Value;
-                Debug.Log(kvp.Value);
+            Debug.Log(kvp.Value);
         }
 
         playersInside.Clear();

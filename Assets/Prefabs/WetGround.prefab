@@ -224,7 +224,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: '::'
   slowMultiplier: 0.5
-  lifeTime: 3
+  lifeTime: 5
 --- !u!1 &8189349339725569295
 GameObject:
   m_ObjectHideFlags: 0
