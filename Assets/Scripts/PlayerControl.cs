@@ -24,7 +24,8 @@ public class PlayerControl : MonoBehaviour
     private int rangePowerUpLevel = 0;
     private float rangePerLevel = 1f;
 
-
+    private int maxBombPowerUp = 4;
+    private int countBombPowerUp = 0;
 
     void Start()
     {
@@ -120,6 +121,15 @@ public class PlayerControl : MonoBehaviour
             }
             Destroy(other.gameObject);
         }
+
+        if (other.CompareTag("PowerUp_Bomb"))
+        {
+            if (countBombPowerUp < maxBombPowerUp)
+            {
+                countBombPowerUp += 1;
+            }
+            Destroy(other.gameObject);
+        }
     }
 
     void DropBomb()
@@ -155,13 +165,17 @@ public class PlayerControl : MonoBehaviour
             return;
         }
 
-        GameObject bombInstance = Instantiate(selectedPrefab, spawnPos, spawnRot);
-
-        BombController bc = bombInstance.GetComponent<BombController>();
-        if (bc != null)
+        for (int i = 0; i < 4; i++)
         {
-            bc.blastRange += rangePowerUpLevel * rangePerLevel;
-            Debug.Log("Bomb spawned with blastRange = " + bc.blastRange);
+            GameObject bombInstance = Instantiate(selectedPrefab, spawnPos, spawnRot);
+
+
+            BombController bc = bombInstance.GetComponent<BombController>();
+            if (bc != null)
+            {
+                bc.blastRange += rangePowerUpLevel * rangePerLevel;
+                bc.damage += countBombPowerUp;
+            }
         }
     }
 }

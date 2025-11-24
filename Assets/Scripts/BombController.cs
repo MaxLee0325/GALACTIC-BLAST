@@ -40,6 +40,9 @@ public class BombController : MonoBehaviour
     public GameObject wetGroundPrefab;
     public GameObject ElectrifiedWaterGroundPrefab;
 
+    [Header("Damage")]
+    public int damage = 1;
+
     void Start()
     {
         initialScale = transform.localScale;
@@ -268,7 +271,7 @@ public class BombController : MonoBehaviour
                 else if (hit.collider.CompareTag("Player"))
                 {
                     var hearts = hit.collider.GetComponentInParent<PlayerHearts>();
-                    if (hearts) hearts.TakeDamage(1);
+                    if (hearts) hearts.TakeDamage(damage);
                     Debug.Log("Player takes damage!");
                 }
                 else if (CompareTag("ElectricBomb") && hit.collider.CompareTag("WetGround"))
@@ -328,7 +331,7 @@ public class BombController : MonoBehaviour
                 if (dist <= blastRange)
                 {
                     var hearts = player.GetComponent<PlayerHearts>();
-                    if (hearts) hearts.TakeDamage(1);
+                    if (hearts) hearts.TakeDamage(damage);
                 }
             }
 
