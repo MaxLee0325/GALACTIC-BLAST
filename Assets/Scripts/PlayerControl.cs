@@ -15,6 +15,9 @@ public class PlayerControl : MonoBehaviour
     private float _lastBombTime = -999f;
     private enum BombType { Normal, Electric, Fire, Water }
     private BombType currentBombType = BombType.Normal;
+    private float maxSpeedPowerUp = 5;
+    private float countSpeedPowerUp = 0;
+    private float powerUpSpeed = 0.5f;
 
     void Start()
     {
@@ -88,8 +91,17 @@ public class PlayerControl : MonoBehaviour
             {
                 hearts.PickupHeart();
             }
+            Destroy(other.gameObject);
+        }
 
-            // Pickup is always consumed, even if useless
+        if (other.CompareTag("PowerUp_Speed"))
+        {
+            if (countSpeedPowerUp < maxSpeedPowerUp)
+            {
+                speed = speed + powerUpSpeed;
+                Debug.Log("Speed" + speed);
+            }
+            countSpeedPowerUp += 1;
             Destroy(other.gameObject);
         }
     }
