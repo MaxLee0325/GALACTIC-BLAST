@@ -15,9 +15,16 @@ public class PlayerControl : MonoBehaviour
     private float _lastBombTime = -999f;
     private enum BombType { Normal, Electric, Fire, Water }
     private BombType currentBombType = BombType.Normal;
-    private float maxSpeedPowerUp = 5;
-    private float countSpeedPowerUp = 0;
+
+    private int maxSpeedPowerUp = 5;
+    private int countSpeedPowerUp = 0;
     private float powerUpSpeed = 0.5f;
+
+    private int maxRangePowerUp = 4;
+    private int rangePowerUpLevel = 0;
+    private float rangePerLevel = 1f;
+
+
 
     void Start()
     {
@@ -99,9 +106,18 @@ public class PlayerControl : MonoBehaviour
             if (countSpeedPowerUp < maxSpeedPowerUp)
             {
                 speed = speed + powerUpSpeed;
-                Debug.Log("Speed" + speed);
+                countSpeedPowerUp += 1;
             }
-            countSpeedPowerUp += 1;
+            
+            Destroy(other.gameObject);
+        }
+
+        if (other.CompareTag("PowerUp_Range"))
+        {
+            if (rangePowerUpLevel < maxRangePowerUp)
+            {
+                rangePowerUpLevel++;
+            }
             Destroy(other.gameObject);
         }
     }
@@ -115,20 +131,37 @@ public class PlayerControl : MonoBehaviour
         Debug.Log(Vector3.up);
         Debug.Log(spawnPos);
 
+        GameObject selectedPrefab = null;
+
         switch (currentBombType)
-            {
-                case BombType.Normal: // Normal Bomb
-                    Instantiate(bombPrefab, spawnPos, spawnRot);
-                    break;
-                case BombType.Electric: // Electric Bomb
-                    Instantiate(electricBombPrefab, spawnPos, spawnRot);
-                    break;
-                case BombType.Fire: // Fire Bomb
-                    Instantiate(fireBombPrefab, spawnPos, spawnRot);
-                    break;
-                case BombType.Water: // Water Bomb
-                    Instantiate(waterBombPrefab, spawnPos, spawnRot);
-                    break;
-            }
+        {
+            case BombType.Normal:
+                selectedPrefab = bombPrefab;
+                break;
+            case BombType.Electric:
+                selectedPrefab = electricBombPrefab;
+                break;
+            case BombType.Fire:
+                selectedPrefab = fireBombPrefab;
+                break;
+            case BombType.Water:
+                selectedPrefab = waterBombPrefab;
+                break;
+        }
+
+        if (selectedPrefab == null)
+        {
+            Debug.LogWarning("No prefab assigned for current bomb type: " + currentBombType);
+            return;
+        }
+
+        GameObject bombInstance = Instantiate(selectedPrefab, spawnPos, spawnRot);
+
+        BombController bc = bombInstance.GetComponent<BombController>();
+        if (bc != null)
+        {
+            bc.blastRange += rangePowerUpLevel * rangePerLevel;
+            Debug.Log("Bomb spawned with blastRange = " + bc.blastRange);
+        }
     }
 }
