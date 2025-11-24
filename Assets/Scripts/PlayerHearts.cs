@@ -55,6 +55,14 @@ public class PlayerHearts : MonoBehaviour
         RefreshUI();
     }
 
+    public void PickupHeart()
+    {
+        if (currentHearts < maxHearts)
+        {
+            Heal(1);
+        }
+    }
+
     private void RefreshUI()
     {
         if (heartImages == null || heartImages.Count == 0) return;

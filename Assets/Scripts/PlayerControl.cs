@@ -80,6 +80,18 @@ public class PlayerControl : MonoBehaviour
             Debug.Log("Picked up ELECTRIC power-up! Now dropping Electric Bombs.");
             Destroy(other.gameObject);
         }
+        
+        if (other.CompareTag("PowerUp_Heart"))
+        {
+            var hearts = GetComponentInChildren<PlayerHearts>();
+            if (hearts != null)
+            {
+                hearts.PickupHeart();
+            }
+
+            // Pickup is always consumed, even if useless
+            Destroy(other.gameObject);
+        }
     }
 
     void DropBomb()
