@@ -278,7 +278,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 3, y: 1, z: 1}
+  m_Size: {x: 3, y: 2, z: 1}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!65 &5587260473691780899
 BoxCollider:
@@ -299,7 +299,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1, y: 2, z: 1}
   m_Center: {x: 0, y: 0, z: -1}
 --- !u!65 &3602575362677597848
 BoxCollider:
@@ -320,7 +320,7 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1, y: 2, z: 1}
   m_Center: {x: 0, y: 0, z: 1}
 --- !u!114 &183960134643507737
 MonoBehaviour:
@@ -337,5 +337,5 @@ MonoBehaviour:
   stunDuration: 1
   damageInterval: 1
   damageAmount: 1
-  lifeTime: 3
+  lifeTime: 4
   stunEffectPrefab: {fileID: 4786842357797940214, guid: 418f3226f19ca4b20a43eed392da16e0, type: 3}
