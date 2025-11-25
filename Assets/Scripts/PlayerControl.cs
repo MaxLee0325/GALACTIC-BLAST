@@ -10,7 +10,7 @@ public class PlayerControl : MonoBehaviour
     public GameObject electricBombPrefab;        // assign your Bomb prefab
     public GameObject fireBombPrefab;        // assign your Bomb prefab
     public GameObject waterBombPrefab;        // assign your Bomb prefab
-    public float bombCooldown = 0.75f;   // time between drops
+    public float bombCooldown = 20f;   // time between drops
     public float spawnForward = 0.6f;    // a bit in front of feet
     private float _lastBombTime = -999f;
     private enum BombType { Normal, Electric, Fire, Water }
@@ -24,8 +24,14 @@ public class PlayerControl : MonoBehaviour
     private int rangePowerUpLevel = 0;
     private float rangePerLevel = 1f;
 
-    private int maxBombPowerUp = 4;
+    private int maxBombPowerUp = 6;
     private int countBombPowerUp = 0;
+
+    private float nextBombReadyTime = 0f;    // when next burst is allowed
+    private int bombsRemainingInBurst = 0;
+
+    [Header("Audio")]
+    [SerializeField] private AudioSource maxPowerUpAudio;
 
     void Start()
     {
@@ -63,8 +69,31 @@ public class PlayerControl : MonoBehaviour
 
         if (Input.GetKeyDown(KeyCode.Space) && Time.time - _lastBombTime >= bombCooldown)
         {
-            DropBomb();
-            _lastBombTime = Time.time;
+            TryDropBombWithBurstLogic();
+        }
+    }
+
+    void TryDropBombWithBurstLogic()
+    {
+        // still cooling down, cannot drop anything
+        if (Time.time < nextBombReadyTime)
+            return;
+
+        int maxBombsThisBurst = 1 + countBombPowerUp; 
+        Debug.Log("Bomb power up" + countBombPowerUp);
+        // if starting a new burst, reset burst counter
+        if (bombsRemainingInBurst <= 0)
+        {
+            bombsRemainingInBurst = maxBombsThisBurst;
+        }
+
+        DropBomb();
+        bombsRemainingInBurst--;
+
+        // if we used all bombs in this burst, start cooldown
+        if (bombsRemainingInBurst <= 0)
+        {
+            nextBombReadyTime = Time.time + bombCooldown;
         }
     }
 
@@ -92,16 +121,23 @@ public class PlayerControl : MonoBehaviour
             Destroy(other.gameObject);
         }
         
+        // Heart Power-up
         if (other.CompareTag("PowerUp_Heart"))
         {
             var hearts = GetComponentInChildren<PlayerHearts>();
-            if (hearts != null)
+            if (hearts != null && hearts.currentHearts != 5 )
             {
                 hearts.PickupHeart();
+            }
+            else
+            {
+                Debug.Log("Played sound max");
+                PlayMaxPowerUpAudio();
             }
             Destroy(other.gameObject);
         }
 
+        // Speed Power-up
         if (other.CompareTag("PowerUp_Speed"))
         {
             if (countSpeedPowerUp < maxSpeedPowerUp)
@@ -109,24 +145,39 @@ public class PlayerControl : MonoBehaviour
                 speed = speed + powerUpSpeed;
                 countSpeedPowerUp += 1;
             }
-            
-            Destroy(other.gameObject);
+            else
+            {
+                PlayMaxPowerUpAudio();
+            }
+
+                Destroy(other.gameObject);
         }
 
+        // Range power-up
         if (other.CompareTag("PowerUp_Range"))
         {
             if (rangePowerUpLevel < maxRangePowerUp)
             {
                 rangePowerUpLevel++;
             }
+            else
+            {
+                PlayMaxPowerUpAudio();
+            }
             Destroy(other.gameObject);
         }
 
+        // Bomb power-up
         if (other.CompareTag("PowerUp_Bomb"))
         {
             if (countBombPowerUp < maxBombPowerUp)
             {
                 countBombPowerUp += 1;
+                Debug.Log("Bomb power up"+countBombPowerUp);
+            }
+            else
+            {
+                PlayMaxPowerUpAudio();
             }
             Destroy(other.gameObject);
         }
@@ -174,8 +225,15 @@ public class PlayerControl : MonoBehaviour
             if (bc != null)
             {
                 bc.blastRange += rangePowerUpLevel * rangePerLevel;
-                bc.damage += countBombPowerUp;
             }
+        }
+    }
+
+    private void PlayMaxPowerUpAudio()
+    {
+        if (maxPowerUpAudio != null && !maxPowerUpAudio.isPlaying)
+        {
+            maxPowerUpAudio?.Play();
         }
     }
 }
