@@ -17,6 +17,13 @@ TagManager:
   - LightningChainVisual
   - StunEffect
   - IceBarrier
+  - PowerUp_Fire
+  - PowerUp_Water
+  - PowerUp_Electric
+  - PowerUp_Heart
+  - PowerUp_Bomb
+  - PowerUp_Speed
+  - PowerUp_Range
   layers:
   - Default
   - TransparentFX
