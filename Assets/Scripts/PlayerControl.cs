@@ -76,9 +76,10 @@ public class PlayerControl : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time - _lastBombTime >= bombCooldown)
         {
             DropBomb();
+            _lastBombTime = Time.time;
         }
     }
 
