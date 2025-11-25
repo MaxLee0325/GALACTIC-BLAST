@@ -5,7 +5,7 @@ public class WetGround : MonoBehaviour
 {
     [Header("Slow Settings")]
     public float slowMultiplier = 0.5f;   // reduce to 50%
-    public float lifeTime = 3f;
+    public float lifeTime = 5f;
 
     // Track players and their original speed
     private Dictionary<PlayerControl, float> playersInside = new Dictionary<PlayerControl, float>();
@@ -26,8 +26,8 @@ public class WetGround : MonoBehaviour
             PlayerControl pc = other.GetComponent<PlayerControl>();
             if (pc != null && !playersInside.ContainsKey(pc))
             {
-                playersInside.Add(pc, pc.speed);   // store original speed
-                pc.speed *= slowMultiplier;        // apply slow
+                playersInside.Add(pc, pc.moveSpeed);   // store original speed
+                pc.moveSpeed *= slowMultiplier;        // apply slow
                 Debug.Log("Player on water!");
             }
         }
@@ -52,7 +52,7 @@ public class WetGround : MonoBehaviour
             PlayerControl pc = other.GetComponent<PlayerControl>();
             if (pc != null && playersInside.ContainsKey(pc))
             {
-                pc.speed = playersInside[pc];  // restore original speed
+                pc.moveSpeed = playersInside[pc];  // restore original speed
                 playersInside.Remove(pc);
             }
         }
@@ -75,7 +75,7 @@ public class WetGround : MonoBehaviour
         foreach (var kvp in playersInside)
         {
             if (kvp.Key != null)
-                kvp.Key.speed = kvp.Value;
+                kvp.Key.moveSpeed = kvp.Value;
         }
         playersInside.Clear();
 

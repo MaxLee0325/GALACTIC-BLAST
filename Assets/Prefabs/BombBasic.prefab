@@ -215,7 +215,7 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
@@ -300,6 +300,9 @@ MonoBehaviour:
   previewEndWidth: 0.15
   explosionAudio: {fileID: 1243786482588106784}
   PreviewBeamPrefab: {fileID: 2323542525816555161, guid: 2f28f3dab37a24b18b1e0f34e01b6675, type: 3}
+  burningGroundPrefab: {fileID: 0}
+  wetGroundPrefab: {fileID: 0}
+  ElectrifiedWaterGroundPrefab: {fileID: 0}
 --- !u!198 &2148043306745812776
 ParticleSystem:
   m_ObjectHideFlags: 0

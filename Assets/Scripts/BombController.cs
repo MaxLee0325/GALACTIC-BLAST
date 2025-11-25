@@ -91,7 +91,7 @@ public class BombController : MonoBehaviour
         previewVisible = Mathf.Sin(blinkTimer) > 0;
 
         // Show blast preview
-        if(!hasExploded)
+        if (!hasExploded)
         {
             ShowBlastPreview();
         }
@@ -235,7 +235,7 @@ public class BombController : MonoBehaviour
 
         // Destroy bomb after short delay to allow audio/flash
         Destroy(gameObject, 0.5f);
-        
+
     }
 
     private void DrawExplosionBeams()
@@ -261,6 +261,10 @@ public class BombController : MonoBehaviour
                 }
                 else if (hit.collider.CompareTag("Destructible"))
                 {
+                    PowerUpSpawner spawner = hit.collider.GetComponent<PowerUpSpawner>();
+                    if (spawner != null)
+                        spawner.SpawnPowerUp();
+
                     Destroy(hit.collider.gameObject);
                 }
                 else if (hit.collider.CompareTag("Bomb"))
@@ -296,6 +300,11 @@ public class BombController : MonoBehaviour
                 }
                 // Ice barrier can only be destroyed by fire bomb
                 else if (CompareTag("FireBomb") && hit.collider.CompareTag("IceBarrier"))
+                {
+                    Destroy(hit.collider.gameObject);
+                }
+                // Fire bomb counters electrified wet ground
+                else if (CompareTag("FireBomb") && hit.collider.CompareTag("ElectrifiedWaterGround"))
                 {
                     Destroy(hit.collider.gameObject);
                 }
@@ -361,7 +370,7 @@ public class BombController : MonoBehaviour
 
         while (elapsed < duration)
         {
-            if (lr == null)    
+            if (lr == null)
                 yield break;
 
             elapsed += Time.deltaTime;

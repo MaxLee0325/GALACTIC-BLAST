@@ -8,7 +8,7 @@ public class ElectrifiedWaterGround : MonoBehaviour
     public float stunDuration = 1f;
     public float damageInterval = 1f;
     public int damageAmount = 1;
-    public float lifeTime = 3f;
+    public float lifeTime = 4f;
 
     public GameObject stunEffectPrefab;   // 🔥 assign in Inspector
 
@@ -38,7 +38,7 @@ public class ElectrifiedWaterGround : MonoBehaviour
 
             if (pc != null && !playersInside.ContainsKey(pc))
             {
-                playersInside.Add(pc, pc.speed);
+                playersInside.Add(pc, pc.moveSpeed);
                 playerHearts[ph] = ph;
 
                 StartCoroutine(StunPlayer(pc));
@@ -66,7 +66,7 @@ public class ElectrifiedWaterGround : MonoBehaviour
 
             if (pc != null && playersInside.ContainsKey(pc))
             {
-                pc.speed = playersInside[pc]; // restore speed just in case
+                pc.moveSpeed = playersInside[pc]; // restore speed just in case
                 playersInside.Remove(pc);
             }
 
@@ -102,12 +102,12 @@ public class ElectrifiedWaterGround : MonoBehaviour
             Destroy(effect, stunDuration);
         }
 
-        float originalSpeed = pc.speed;
-        pc.speed = 0f;
+        float originalSpeed = pc.moveSpeed;
+        pc.moveSpeed = 0f;
         yield return new WaitForSeconds(stunDuration);
         // Restore only if still inside electrified water
         if (playersInside.ContainsKey(pc))
-            pc.speed = originalSpeed;
+            pc.moveSpeed = originalSpeed;
     }
 
     IEnumerator DamageLoop()
@@ -138,7 +138,7 @@ public class ElectrifiedWaterGround : MonoBehaviour
         {
             if (kvp.Key != null)
                 kvp.Key.speed = kvp.Value;
-                Debug.Log(kvp.Value);
+            Debug.Log(kvp.Value);
         }
 
         playersInside.Clear();
