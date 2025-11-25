@@ -6,14 +6,20 @@ public class PowerUpSpawner : MonoBehaviour
     [Range(0f, 1f)]
     public float dropChance = 0.7f;   // 70% chance
 
-    public GameObject[] powerUpPrefabs;  // Assign all 7 prefabs here
+    public GameObject[] powerUpPrefabs;  
 
-    // Call this when the destructible object is destroyed
+    private bool hasTriedToSpawn = false;
+
     public void SpawnPowerUp()
     {
+        if (hasTriedToSpawn)
+            return;
+
+        hasTriedToSpawn = true;
+
         // Roll chance first
         if (Random.value > dropChance)
-            return; // No power-up dropped
+            return; 
 
         if (powerUpPrefabs == null || powerUpPrefabs.Length == 0)
         {
