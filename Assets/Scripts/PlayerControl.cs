@@ -216,17 +216,16 @@ public class PlayerControl : MonoBehaviour
             return;
         }
 
-        for (int i = 0; i < 4; i++)
+        
+        GameObject bombInstance = Instantiate(selectedPrefab, spawnPos, spawnRot);
+
+
+        BombController bc = bombInstance.GetComponent<BombController>();
+        if (bc != null)
         {
-            GameObject bombInstance = Instantiate(selectedPrefab, spawnPos, spawnRot);
-
-
-            BombController bc = bombInstance.GetComponent<BombController>();
-            if (bc != null)
-            {
-                bc.blastRange += rangePowerUpLevel * rangePerLevel;
-            }
+            bc.blastRange += rangePowerUpLevel * rangePerLevel;
         }
+        
     }
 
     private void PlayMaxPowerUpAudio()
