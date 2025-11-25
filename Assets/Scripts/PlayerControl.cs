@@ -1,10 +1,12 @@
+using System.Collections;
 using UnityEngine;
 
 public class PlayerControl : MonoBehaviour
 {
     Animation anim;
-    public float speed = 5;
-    public float rotationSpeed = 10f; // how fast the character turns
+    public float moveAmount = 1;
+    public float moveSpeed = 5;
+    private bool isMoving = false;
 
     public GameObject bombPrefab;        // assign your Bomb prefab
     public GameObject electricBombPrefab;        // assign your Bomb prefab
@@ -21,31 +23,40 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
-        // Get input (WASD or arrow keys)
-        float moveX = Input.GetAxis("Horizontal");
-        float moveY = Input.GetAxis("Vertical");
+        if (isMoving) return;
 
-        // Combine into one direction vector
-        Vector3 direction = new Vector3(moveX, 0f, moveY).normalized;
-
-        // If the player is pressing a direction
-        if (direction.magnitude > 0.1f)
+        Vector3 direction = Vector3.zero;
+        
+        if (Input.GetKey(KeyCode.UpArrow))
         {
-            // Move the player
-            transform.Translate(direction * speed * Time.deltaTime, Space.World);
-
-            // Smoothly rotate to face movement direction
-            Quaternion targetRotation = Quaternion.LookRotation(direction);
-            transform.rotation = Quaternion.Slerp(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
-
-            // Play the walk animation if not already playing
-            if (!anim.isPlaying)
-                anim.Play("Armature|Walk"); // Replace with your clip name if needed
+            direction = Vector3.forward;
         }
-        else
+        if (Input.GetKey(KeyCode.DownArrow))
         {
-            // Stop animation when idle
-            anim.Stop();
+            direction = Vector3.back;
+        }
+        if (Input.GetKey(KeyCode.LeftArrow))
+        {
+            direction = Vector3.left;
+        }
+        if (Input.GetKey(KeyCode.RightArrow))
+        {
+            direction = Vector3.right;
+        }
+
+        if (direction != Vector3.zero)
+        {
+            RotateToDirection(direction);
+            if (CanMove(direction))
+            {
+                anim.Play();
+                StartCoroutine(Move(direction));
+            }
+            else
+            {
+                // Stop animation when idle
+                anim.Stop();
+            }
         }
 
         if (Input.GetKeyDown(KeyCode.Space) && Time.time - _lastBombTime >= bombCooldown)
@@ -73,11 +84,67 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
+    bool CanMove(Vector3 direction)
+    {
+        Vector3 targetPos = transform.position + direction * moveAmount;
+
+        Collider[] hits = Physics.OverlapSphere(targetPos, 0.35f);
+
+        foreach (Collider hit in hits)
+        {
+            if (hit.CompareTag("Wall") || hit.CompareTag("Destructible")) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    void RotateToDirection(Vector3 direction)
+    {
+        if (direction == Vector3.forward)
+        {
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
+        else if (direction == Vector3.back)
+        {
+            transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
+        else if (direction == Vector3.left)
+        {
+            transform.rotation = Quaternion.Euler(0, -90, 0);
+        }
+        else if (direction == Vector3.right)
+        {
+            transform.rotation = Quaternion.Euler(0, 90, 0);
+        }
+    }
+
+    IEnumerator Move(Vector3 direction)
+    {
+        isMoving = true;
+
+        Vector3 start = transform.position;
+        Vector3 target = start + direction * moveAmount;
+
+        float t = 0;
+
+        while (t < 1)
+        {
+            t += Time.deltaTime * moveSpeed;
+            transform.position = Vector3.Lerp(start, target, t);
+
+            yield return null;
+        }
+        transform.position = target;
+        isMoving = false;
+    }
+
     void DropBomb(char bombType)
     {
         if (!bombPrefab) { Debug.LogWarning("No bombPrefab set on PlayerControl."); return; }
 
-        Vector3 spawnPos = transform.position + transform.forward * spawnForward + Vector3.up * 0.5f;
+        Vector3 spawnPos = new Vector3(Mathf.Round(transform.position.x), (float)(transform.position.y + 0.5), Mathf.Round(transform.position.z));
         Quaternion spawnRot = Quaternion.identity;
         Debug.Log(Vector3.up);
         Debug.Log(spawnPos);
