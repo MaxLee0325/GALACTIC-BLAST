@@ -1,12 +1,20 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PauseControl : MonoBehaviour
+public class PanelControl : MonoBehaviour
 {
+    [Header("Pause Panel")]
     public GameObject pauseButton;
     public GameObject pausePanel;
 
     bool isPaused = false;
+
+    [Header("Next Level Panel")]
+    public GameObject nextLevelPanel;
+    public string nextLevel;
+
+    [Header("Level Selector Panel")]
+    public GameObject levelSelectorPanel;
 
     void Start()
     {
@@ -41,5 +49,39 @@ public class PauseControl : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void showNextLevelPanel()
+    {
+        if (nextLevelPanel != null)
+        {
+            nextLevelPanel.SetActive(true);
+            Debug.Log("PORTAL TRIGGERED!");
+        }
+        Time.timeScale = 0;
+        Debug.Log("CALLING SHOW PANEL");
+        Debug.Log("Panel: " + nextLevelPanel);
+
+    }
+
+    public void LoadNextLevel()
+    {
+        Time.timeScale = 1;
+        SceneManager.LoadScene(nextLevel);
+    }
+
+    public void showLevelSelectorPanel()
+    {
+        if (levelSelectorPanel != null)
+        {
+            levelSelectorPanel.SetActive(true);
+        }
+        Time.timeScale = 0;
+    }
+
+    public void GoToLevel(string level)
+    {
+        Time.timeScale = 1;
+        SceneManager.LoadScene(level);
     }
 }

@@ -1,14 +1,22 @@
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class Portal : MonoBehaviour
 {
-    public NextLevelControl nextLevelControl;
+    public PanelControl nextLevelControl;
+    public PanelControl levelSelector;
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
-            nextLevelControl.showNextLevelPanel();
+            if (SceneManager.GetActiveScene().name == "Level 3")
+            {
+                levelSelector.showLevelSelectorPanel();
+            }
+            else {
+                nextLevelControl.showNextLevelPanel();
+            }
         }
     }
 }
