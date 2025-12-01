@@ -5,7 +5,7 @@ using UnityEngine.UI;
 public class PlayerHearts : MonoBehaviour
 {
     [Header("Health")]
-    public int maxHearts = 5;         // fixed to 5 for your case
+    public int maxHearts = 5;
     [Range(0, 5)] public int currentHearts = 5;
 
     [Header("UI")]
@@ -18,6 +18,9 @@ public class PlayerHearts : MonoBehaviour
 
     public float damageCooldown = 0.4f;
     float lastHitTime = -999f;
+
+    [Header("Lose Panel")]
+    public GameObject youLostPanel;
 
     void Awake()
     {
@@ -39,6 +42,11 @@ public class PlayerHearts : MonoBehaviour
             // TODO: handle death (disable control, reload menu, etc.)
             // For now just log:
             Debug.Log("Player died (hearts reached zero).");
+            if (youLostPanel != null)
+            {
+                youLostPanel.SetActive(true);
+                Time.timeScale = 0;
+            }
         }
     }
 
