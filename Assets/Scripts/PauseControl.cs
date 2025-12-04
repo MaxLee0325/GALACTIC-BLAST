@@ -15,6 +15,23 @@ public class PauseControl : MonoBehaviour
         Time.timeScale = 1f;
         isPaused = false;
     }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            Debug.Log("pressed escape"+isPaused);
+            if (isPaused)
+            {
+                Resume();
+            }
+            else
+            {
+                Pause();
+            }
+        }
+    }
+
     public void Pause()
     {
         if (isPaused) return;
@@ -24,6 +41,7 @@ public class PauseControl : MonoBehaviour
         if (pauseButton != null) pauseButton.SetActive(false);
 
         Time.timeScale = 0f;
+
     }
 
     public void Resume()
@@ -41,5 +59,11 @@ public class PauseControl : MonoBehaviour
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void Quit()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
     }
 }
