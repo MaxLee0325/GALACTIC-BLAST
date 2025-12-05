@@ -24,4 +24,10 @@ public class NextLevelControl : MonoBehaviour
         Time.timeScale = 1;
         SceneManager.LoadScene(nextLevel);
     }
+
+    public void LoadMainMenu()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("MainMenu");
+    }
 }
