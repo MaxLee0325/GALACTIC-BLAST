@@ -16,6 +16,8 @@ public class PlayerHearts : MonoBehaviour
     [Header("Optional")]
     public bool clampToMaxList = true; // if true, only first N images are used
 
+    public GameOverControl gameOverControl;
+
     public float damageCooldown = 0.4f;
     float lastHitTime = -999f;
 
@@ -36,8 +38,8 @@ public class PlayerHearts : MonoBehaviour
 
         if (currentHearts <= 0)
         {
-            // TODO: handle death (disable control, reload menu, etc.)
-            // For now just log:
+            //Need to implement medic logic
+            gameOverControl.ShowGameOverPanel();
             Debug.Log("Player died (hearts reached zero).");
         }
     }

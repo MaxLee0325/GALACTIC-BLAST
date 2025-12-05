@@ -5,18 +5,16 @@ public class NextLevelControl : MonoBehaviour
 {
     public GameObject nextLevelPanel;
     public string nextLevel;
+    public GameObject pauseButton;
 
     public void showNextLevelPanel()
     {
         if (nextLevelPanel != null)
         {
             nextLevelPanel.SetActive(true);
-            Debug.Log("PORTAL TRIGGERED!");
+            pauseButton.SetActive(false);
         }
         Time.timeScale = 0;
-        Debug.Log("CALLING SHOW PANEL");
-        Debug.Log("Panel: " + nextLevelPanel);
-
     }
 
     public void LoadNextLevel()
