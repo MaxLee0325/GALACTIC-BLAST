@@ -7,8 +7,6 @@ public class PanelControl : MonoBehaviour
     public GameObject pauseButton;
     public GameObject pausePanel;
 
-    bool isPaused = false;
-
     [Header("Next Level Panel")]
     public GameObject nextLevelPanel;
     public string nextLevel;
@@ -21,12 +19,26 @@ public class PanelControl : MonoBehaviour
         if (pausePanel != null) pausePanel.SetActive(false);
         if (pauseButton != null) pauseButton.SetActive(true);
         Time.timeScale = 1f;
-        isPaused = false;
     }
+
+    void Update()
+    {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (pausePanel.activeSelf)
+            {
+                Resume();
+            }
+            else
+            {
+                Pause();
+            }
+        }
+    }
+
     public void Pause()
     {
-        if (isPaused) return;
-        isPaused = true;
+        if (pausePanel.activeSelf) return;
 
         if (pausePanel != null) pausePanel.SetActive(true);
         if (pauseButton != null) pauseButton.SetActive(false);
@@ -36,8 +48,7 @@ public class PanelControl : MonoBehaviour
 
     public void Resume()
     {
-        if (!isPaused) return;
-        isPaused = false;
+        if (!pausePanel.activeSelf) return;
 
         if (pausePanel != null) pausePanel.SetActive(false);
         if (pauseButton != null) pauseButton.SetActive(true);
