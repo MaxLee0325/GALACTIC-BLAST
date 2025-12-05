@@ -20,7 +20,6 @@ public class PauseControl : MonoBehaviour
     {
         if (Input.GetKeyDown(KeyCode.Escape))
         {
-            Debug.Log("pressed escape"+isPaused);
             if (isPaused)
             {
                 Resume();
@@ -42,6 +41,9 @@ public class PauseControl : MonoBehaviour
 
         Time.timeScale = 0f;
 
+        if (GameManager.Instance != null)
+            GameManager.Instance.SetPaused(true);
+
     }
 
     public void Resume()
@@ -53,6 +55,9 @@ public class PauseControl : MonoBehaviour
         if (pauseButton != null) pauseButton.SetActive(true);
 
         Time.timeScale = 1f;
+
+        if (GameManager.Instance != null)
+            GameManager.Instance.SetPaused(false);
     }
 
     public void Restart()

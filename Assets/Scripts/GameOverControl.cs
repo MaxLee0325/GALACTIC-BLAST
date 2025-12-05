@@ -22,6 +22,11 @@ public class GameOverControl : MonoBehaviour
         Time.timeScale = 1f;
         Scene current = SceneManager.GetActiveScene();
         SceneManager.LoadScene(current.name);
+
+        if (GameManager.Instance != null)
+        {
+            GameManager.Instance.SetPaused(false);
+        }
     }
 
     public void LoadMainMenu()

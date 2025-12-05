@@ -40,7 +40,8 @@ public class PlayerHearts : MonoBehaviour
         {
             //Need to implement medic logic
             gameOverControl.ShowGameOverPanel();
-            Debug.Log("Player died (hearts reached zero).");
+            if (GameManager.Instance != null)
+                GameManager.Instance.SetLost();
         }
     }
 

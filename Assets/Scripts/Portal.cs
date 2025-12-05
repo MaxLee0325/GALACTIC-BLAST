@@ -8,7 +8,11 @@ public class Portal : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            nextLevelControl.showNextLevelPanel();
+            if (GameManager.Instance != null && GameManager.Instance.GetEnemyCount() == 0)
+            {
+                nextLevelControl.showNextLevelPanel();
+            }
         }
     }
 }
+
