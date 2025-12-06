@@ -3,6 +3,7 @@ using UnityEngine;
 public class PlatformLift : MonoBehaviour
 {
     public Transform destination;
+
     public float riseSpeed = 2f;
     public float rotateSpeed = 90f;
 
@@ -10,6 +11,7 @@ public class PlatformLift : MonoBehaviour
     private Transform player;
 
     public GameObject secondFloor;
+    public Transform platform;
 
     private void OnTriggerEnter(Collider other)
     {
@@ -22,19 +24,27 @@ public class PlatformLift : MonoBehaviour
 
     private void Update()
     {
-        if (!lifting || player == null) return;
+        if (!lifting || player == null || platform == null) return;
 
-        player.position = Vector3.MoveTowards(
-            player.position,
+        player.SetParent(platform);
+
+        platform.position = Vector3.MoveTowards(
+            platform.position,
             destination.position,
             riseSpeed * Time.deltaTime
         );
 
         player.Rotate(Vector3.up * rotateSpeed * Time.deltaTime, Space.World);
 
-        if (Vector3.Distance(player.position, destination.position) < 0.1f)
+        if (Vector3.Distance(platform.position, destination.position) < 0.1f)
         {
             lifting = false;
+
+            player.SetParent(null);
+            player.position = new Vector3( Mathf.Round(destination.position.x), Mathf.Round(destination.position.y), Mathf.Round(destination.position.z) );
+            platform.gameObject.SetActive(false);
+
+            player.rotation = Quaternion.Euler(player.rotation.eulerAngles.x, 180, player.rotation.eulerAngles.z);
 
             if (secondFloor != null)
             {

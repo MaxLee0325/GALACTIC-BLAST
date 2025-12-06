@@ -108,7 +108,7 @@ public class PlayerControl : MonoBehaviour
         }
         
         // Heart Power-up
-        if (other.CompareTag("PowerUp_Heart"))
+        else if (other.CompareTag("PowerUp_Heart"))
         {
             var hearts = GetComponentInChildren<PlayerHearts>();
             if (hearts != null )
@@ -119,7 +119,7 @@ public class PlayerControl : MonoBehaviour
         }
 
         // Speed Power-up
-        if (other.CompareTag("PowerUp_Speed"))
+        else if (other.CompareTag("PowerUp_Speed"))
         {
             if (countSpeedPowerUp < maxSpeedPowerUp)
             {
@@ -135,7 +135,7 @@ public class PlayerControl : MonoBehaviour
         }
 
         // Range power-up
-        if (other.CompareTag("PowerUp_Range"))
+        else if (other.CompareTag("PowerUp_Range"))
         {
             if (rangePowerUpLevel < maxRangePowerUp)
             {
@@ -149,7 +149,7 @@ public class PlayerControl : MonoBehaviour
         }
 
         // Bomb power-up
-        if (other.CompareTag("PowerUp_Bomb"))
+        else if (other.CompareTag("PowerUp_Bomb"))
         {
             if (countBombPowerUp < maxBombPowerUp)
             {

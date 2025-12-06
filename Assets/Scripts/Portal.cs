@@ -12,7 +12,7 @@ public class Portal : MonoBehaviour
         {
             if (SceneManager.GetActiveScene().name == "Level 3")
             {
-                levelSelector.showLevelSelectorPanel();
+                levelSelector.showPanel();
             }
             else {
                 nextLevelControl.showNextLevelPanel();
