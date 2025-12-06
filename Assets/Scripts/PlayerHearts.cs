@@ -39,12 +39,11 @@ public class PlayerHearts : MonoBehaviour
 
         if (currentHearts <= 0)
         {
-            // TODO: handle death (disable control, reload menu, etc.)
-            // For now just log:
             Debug.Log("Player died (hearts reached zero).");
             if (youLostPanel != null)
             {
                 youLostPanel.SetActive(true);
+                GameManager.Instance.SetGameState(GameManager.GameState.Lost);
                 Time.timeScale = 0;
             }
         }

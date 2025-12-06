@@ -14,13 +14,6 @@ public class PanelControl : MonoBehaviour
     [Header("Level Selector Panel")]
     public GameObject levelSelectorPanel;
 
-    void Start()
-    {
-        if (pausePanel != null) pausePanel.SetActive(false);
-        if (pauseButton != null) pauseButton.SetActive(true);
-        Time.timeScale = 1f;
-    }
-
     void Update()
     {
         if (Input.GetKeyDown(KeyCode.Escape))
@@ -38,22 +31,28 @@ public class PanelControl : MonoBehaviour
 
     public void Pause()
     {
-        if (pausePanel.activeSelf) return;
+        if (pausePanel.activeSelf && !pauseButton.activeSelf)
+        {
+            return;
+        }
 
-        if (pausePanel != null) pausePanel.SetActive(true);
+        if (pausePanel != null) {pausePanel.SetActive(true); Debug.Log("1");
+    }
         if (pauseButton != null) pauseButton.SetActive(false);
 
         Time.timeScale = 0f;
+        GameManager.Instance.SetGameState(GameManager.GameState.Paused);
     }
 
     public void Resume()
     {
         if (!pausePanel.activeSelf) return;
 
-        if (pausePanel != null) pausePanel.SetActive(false);
+        if (pausePanel != null) pausePanel.SetActive(false); 
         if (pauseButton != null) pauseButton.SetActive(true);
 
         Time.timeScale = 1f;
+        GameManager.Instance.SetGameState(GameManager.GameState.Playing);
     }
 
     public void Restart()
@@ -64,6 +63,7 @@ public class PanelControl : MonoBehaviour
 
     public void showNextLevelPanel()
     {
+        GameManager.Instance.SetGameState(GameManager.GameState.Won);
         if (nextLevelPanel != null)
         {
             nextLevelPanel.SetActive(true);
@@ -72,7 +72,6 @@ public class PanelControl : MonoBehaviour
         Time.timeScale = 0;
         Debug.Log("CALLING SHOW PANEL");
         Debug.Log("Panel: " + nextLevelPanel);
-
     }
 
     public void LoadNextLevel()
@@ -83,6 +82,7 @@ public class PanelControl : MonoBehaviour
 
     public void showLevelSelectorPanel()
     {
+        GameManager.Instance.SetGameState(GameManager.GameState.Won);
         if (levelSelectorPanel != null)
         {
             levelSelectorPanel.SetActive(true);

@@ -10,12 +10,16 @@ public class Portal : MonoBehaviour
     {
         if (other.CompareTag("Player"))
         {
-            if (SceneManager.GetActiveScene().name == "Level 3")
+            if (GameManager.Instance != null && GameManager.Instance.GetEnemyCount() == 0)
             {
-                levelSelector.showLevelSelectorPanel();
-            }
-            else {
-                nextLevelControl.showNextLevelPanel();
+                if (SceneManager.GetActiveScene().name == "Level 3")
+                {
+                    levelSelector.showLevelSelectorPanel();
+                }
+                else
+                {
+                    nextLevelControl.showNextLevelPanel();
+                }
             }
         }
     }
