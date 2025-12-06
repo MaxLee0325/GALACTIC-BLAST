@@ -84,4 +84,8 @@ public class PanelControl : MonoBehaviour
         Time.timeScale = 1;
         SceneManager.LoadScene(level);
     }
+
+    public void selectHero(){
+        SceneManager.LoadScene("Hero Selector");
+    }
 }

@@ -5,9 +5,10 @@ public class PlayerControl : MonoBehaviour
 {
     Animation anim;
     public float speed = 5f;
+    public float originalSpeed;
     public float moveAmount = 1f;
-    public float moveSpeed = 5;
     private bool isMoving = false;
+    public bool isSlowed = false;
 
     public GameObject bombPrefab;        // assign your Bomb prefab
     public GameObject electricBombPrefab;        // assign your Bomb prefab
@@ -30,12 +31,41 @@ public class PlayerControl : MonoBehaviour
     private int maxBombPowerUp = 6;
     private int countBombPowerUp = 0;
 
+    public bool isScout = false;
+    public bool isMediv = false;
+    public bool isTanya = false;
+    public bool inCoolDown = false;
+
+    [SerializeField] private SkillVisualization skillVisualization;
+
+
     [Header("Audio")]
     [SerializeField] private AudioSource maxPowerUpAudio;
 
     void Start()
     {
         anim = GetComponent<Animation>();
+        LoadHero();
+    }
+
+    private void LoadHero(){
+        switch (HeroSelect.SelectedHero)
+        {
+            case HeroSelect.Hero.Scout:
+                speed *= 1.2f;
+                isScout = true;
+                break;
+
+            case HeroSelect.Hero.Tanya:
+                speed *= 0.85f;
+                isTanya = true;
+                break;
+
+            case HeroSelect.Hero.Mediv:
+                isMediv = true;
+                break;
+        }
+        originalSpeed = speed;
     }
 
     void Update()
@@ -43,6 +73,53 @@ public class PlayerControl : MonoBehaviour
         if (isMoving) return;
 
         Vector3 direction = Vector3.zero;
+
+        if (Input.GetKeyDown(KeyCode.E) && isScout)
+        {
+            if (!inCoolDown)
+            {
+                StartCoroutine(ScoutDash());
+                skillVisualization.startCountDown();
+            }
+            IEnumerator ScoutDash()
+            {
+                inCoolDown = true;
+
+                float dashSpeed = speed * 2.5f;     // dash is 2.5x faster
+                float dashDuration = 0.2f;              // dash time
+                float coolDownTime = 5f;                // E skill cooldown
+
+                speed = dashSpeed;
+
+                float endTime = Time.time + dashDuration;
+
+                // Dash forward using your existing Move() and collision system
+                while (Time.time < endTime)
+                {
+                    Vector3 forwardDir = transform.forward;
+
+                    // If the next tile is free, move
+                    if (CanMove(forwardDir))
+                    {
+                        yield return StartCoroutine(Move(forwardDir));
+                    }
+                    else
+                    {
+                        break;  // hit wall -> stop dash
+                    }
+                }
+
+                // Reset speed
+                speed = originalSpeed;
+
+                // Skill cooldown
+                yield return new WaitForSeconds(coolDownTime);
+
+                inCoolDown = false;
+            }
+        }
+
+        
         
         if (Input.GetKey(KeyCode.UpArrow))
         {
@@ -123,7 +200,8 @@ public class PlayerControl : MonoBehaviour
         {
             if (countSpeedPowerUp < maxSpeedPowerUp)
             {
-                speed = speed + powerUpSpeed;
+                speed += powerUpSpeed;
+                originalSpeed += powerUpSpeed;
                 countSpeedPowerUp += 1;
             }
             else
@@ -209,9 +287,9 @@ public class PlayerControl : MonoBehaviour
 
         float t = 0;
 
-        while (t < 1)
+        while (t < 1f)
         {
-            t += Time.deltaTime * moveSpeed;
+            t += Time.deltaTime * speed;
             transform.position = Vector3.Lerp(start, target, t);
 
             yield return null;

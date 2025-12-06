@@ -351,7 +351,7 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
@@ -439,6 +439,7 @@ MonoBehaviour:
   burningGroundPrefab: {fileID: 4348720600352822355, guid: 65d062a9ede124532b6084e2edb1a180, type: 3}
   wetGroundPrefab: {fileID: 3485697704042555446, guid: 42952db2cb6464dcd903e51ca4d39ba5, type: 3}
   ElectrifiedWaterGroundPrefab: {fileID: 7823413944371803716, guid: 2f5e288d96314488e80b0c1065900c71, type: 3}
+  damage: 1
 --- !u!198 &3950747207887711578
 ParticleSystem:
   m_ObjectHideFlags: 0

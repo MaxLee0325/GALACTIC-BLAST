@@ -20,6 +20,9 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Level 3.unity
     guid: 14e33880e0e916c49819b278be82f941
+  - enabled: 1
+    path: Assets/Scenes/Hero Selector.unity
+    guid: c616d263d6f71485cb3133fc6a85cf05
   m_configObjects:
     com.unity.input.settings.actions: {fileID: -944628639613478452, guid: 289c1b55c9541489481df5cc06664110, type: 3}
   m_UseUCBPForAssetBundles: 0
