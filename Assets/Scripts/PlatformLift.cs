@@ -35,12 +35,12 @@ public class PlatformLift : MonoBehaviour
         );
 
         player.Rotate(Vector3.up * rotateSpeed * Time.deltaTime, Space.World);
+            player.SetParent(null);
 
         if (Vector3.Distance(platform.position, destination.position) < 0.1f)
         {
             lifting = false;
 
-            player.SetParent(null);
             player.position = new Vector3( Mathf.Round(destination.position.x), Mathf.Round(destination.position.y), Mathf.Round(destination.position.z) );
             platform.gameObject.SetActive(false);
 
