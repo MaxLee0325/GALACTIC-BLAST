@@ -24,10 +24,11 @@ public class WetGround : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             PlayerControl pc = other.GetComponent<PlayerControl>();
-            if (pc != null && !playersInside.ContainsKey(pc))
+            if (pc != null && !playersInside.ContainsKey(pc) && !pc.isSlowed)
             {
-                playersInside.Add(pc, pc.moveSpeed);   // store original speed
-                pc.moveSpeed *= slowMultiplier;        // apply slow
+                pc.isSlowed = true;
+                playersInside.Add(pc, pc.originalSpeed);   // store original speed
+                pc.speed *= slowMultiplier;        // apply slow
                 Debug.Log("Player on water!");
             }
         }
@@ -52,8 +53,9 @@ public class WetGround : MonoBehaviour
             PlayerControl pc = other.GetComponent<PlayerControl>();
             if (pc != null && playersInside.ContainsKey(pc))
             {
-                pc.moveSpeed = playersInside[pc];  // restore original speed
+                pc.speed = playersInside[pc];  // restore original speed
                 playersInside.Remove(pc);
+                pc.isSlowed = false;
             }
         }
 
@@ -75,7 +77,8 @@ public class WetGround : MonoBehaviour
         foreach (var kvp in playersInside)
         {
             if (kvp.Key != null)
-                kvp.Key.moveSpeed = kvp.Value;
+                kvp.Key.speed = kvp.Value;
+                kvp.Key.isSlowed = false;
         }
         playersInside.Clear();
 

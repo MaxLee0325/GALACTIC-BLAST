@@ -265,7 +265,6 @@ GameObject:
   m_Component:
   - component: {fileID: 80229352}
   - component: {fileID: 80229351}
-  - component: {fileID: 80229350}
   m_Layer: 0
   m_Name: Camera
   m_TagString: Untagged
@@ -273,14 +272,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!81 &80229350
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 80229349}
-  m_Enabled: 1
 --- !u!20 &80229351
 Camera:
   m_ObjectHideFlags: 0
@@ -816,8 +807,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 988479991}
         m_TargetAssemblyTypeName: PanelControl, Assembly-CSharp
-        m_MethodName: GoToLevel
-        m_Mode: 5
+        m_MethodName: GoToLevelSelector
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1397,8 +1388,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 988479991}
         m_TargetAssemblyTypeName: PanelControl, Assembly-CSharp
-        m_MethodName: GoToLevel
-        m_Mode: 5
+        m_MethodName: selectHero
+        m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine

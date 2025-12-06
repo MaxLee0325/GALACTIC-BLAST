@@ -7,6 +7,8 @@ public class PanelControl : MonoBehaviour
     public GameObject pauseButton;
     public GameObject pausePanel;
 
+    bool isPaused = false;
+
     [Header("Next Level Panel")]
     public GameObject nextLevelPanel;
     public string nextLevel;
@@ -14,44 +16,43 @@ public class PanelControl : MonoBehaviour
     [Header("Level Selector Panel")]
     public GameObject levelSelectorPanel;
 
-    void Update()
+    public enum Level
     {
-        if (Input.GetKeyDown(KeyCode.Escape))
-        {
-            if (pausePanel.activeSelf)
-            {
-                Resume();
-            }
-            else
-            {
-                Pause();
-            }
-        }
+        Level1,
+        Level2,
+        Level3
+    }
+
+    public static Level SelectedLevel { get; private set; }
+
+    void Start()
+    {
+        if (pausePanel != null) pausePanel.SetActive(false);
+        if (pauseButton != null) pauseButton.SetActive(true);
+        Time.timeScale = 1f;
+        isPaused = false;
     }
 
     public void Pause()
     {
-        if (pausePanel.activeSelf && !pauseButton.activeSelf)
-        {
-            return;
-        }
+        if (isPaused) return;
+        isPaused = true;
 
         if (pausePanel != null) pausePanel.SetActive(true);
         if (pauseButton != null) pauseButton.SetActive(false);
 
         Time.timeScale = 0f;
-        GameManager.Instance.SetGameState(GameManager.GameState.Paused);
     }
 
     public void Resume()
     {
-        if (!pausePanel.activeSelf) return;
+        if (!isPaused) return;
+        isPaused = false;
 
-        if (pausePanel != null) pausePanel.SetActive(false); 
+        if (pausePanel != null) pausePanel.SetActive(false);
         if (pauseButton != null) pauseButton.SetActive(true);
 
         Time.timeScale = 1f;
-        GameManager.Instance.SetGameState(GameManager.GameState.Playing);
     }
 
     public void Restart()
@@ -62,7 +63,6 @@ public class PanelControl : MonoBehaviour
 
     public void showNextLevelPanel()
     {
-        GameManager.Instance.SetGameState(GameManager.GameState.Won);
         if (nextLevelPanel != null)
         {
             nextLevelPanel.SetActive(true);
@@ -71,6 +71,7 @@ public class PanelControl : MonoBehaviour
         Time.timeScale = 0;
         Debug.Log("CALLING SHOW PANEL");
         Debug.Log("Panel: " + nextLevelPanel);
+
     }
 
     public void LoadNextLevel()
@@ -81,7 +82,6 @@ public class PanelControl : MonoBehaviour
 
     public void showLevelSelectorPanel()
     {
-        GameManager.Instance.SetGameState(GameManager.GameState.Won);
         if (levelSelectorPanel != null)
         {
             levelSelectorPanel.SetActive(true);
@@ -92,6 +92,35 @@ public class PanelControl : MonoBehaviour
     public void GoToLevel(string level)
     {
         Time.timeScale = 1;
-        SceneManager.LoadScene(level);
+        
+        switch(level)
+        {
+            case "Level 1":
+                SelectedLevel = Level.Level1;
+                break;
+            case "Level 2":
+                SelectedLevel = Level.Level2;
+                break;
+            case "Level 3":
+                SelectedLevel = Level.Level3;
+                break;
+            default:
+                SelectedLevel = Level.Level1; // fallback to default level
+                break;
+        }
+
+        SceneManager.LoadScene("Hero Selector");
+    }
+
+    public void GoToLevelSelector(){
+        SceneManager.LoadScene("Level Selector");
+    }
+
+    public void GoToMainMenu(){
+        SceneManager.LoadScene("Main Menu");
+    }
+
+    public void selectHero(){
+        SceneManager.LoadScene("Hero Selector");
     }
 }
