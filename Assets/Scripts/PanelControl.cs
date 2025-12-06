@@ -116,6 +116,10 @@ public class PanelControl : MonoBehaviour
         SceneManager.LoadScene("Level Selector");
     }
 
+    public void GoToMainMenu(){
+        SceneManager.LoadScene("Main Menu");
+    }
+
     public void selectHero(){
         SceneManager.LoadScene("Hero Selector");
     }
