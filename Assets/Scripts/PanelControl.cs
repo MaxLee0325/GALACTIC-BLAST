@@ -36,8 +36,7 @@ public class PanelControl : MonoBehaviour
             return;
         }
 
-        if (pausePanel != null) {pausePanel.SetActive(true); Debug.Log("1");
-    }
+        if (pausePanel != null) pausePanel.SetActive(true);
         if (pauseButton != null) pauseButton.SetActive(false);
 
         Time.timeScale = 0f;

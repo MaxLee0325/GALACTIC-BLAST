@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
     public GameState CurrentState { get; private set; } = GameState.Playing;
 
     [Header("References")]
-    public GameObject player;      // assign in Inspector or found at runtime
+    public GameObject player;      
 
     private int enemyCount;
 
@@ -49,7 +49,6 @@ public class GameManager : MonoBehaviour
 
     public void SetGameState(GameState newState)
     {
-        Debug.Log("1"+ CurrentState + newState);
         CurrentState = newState;
     }
 }
