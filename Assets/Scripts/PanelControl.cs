@@ -7,8 +7,6 @@ public class PanelControl : MonoBehaviour
     public GameObject pauseButton;
     public GameObject pausePanel;
 
-    bool isPaused = false;
-
     [Header("Next Level Panel")]
     public GameObject nextLevelPanel;
     public string nextLevel;
@@ -16,33 +14,44 @@ public class PanelControl : MonoBehaviour
     [Header("Level Selector Panel")]
     public GameObject levelSelectorPanel;
 
-    void Start()
+    void Update()
     {
-        if (pausePanel != null) pausePanel.SetActive(false);
-        if (pauseButton != null) pauseButton.SetActive(true);
-        Time.timeScale = 1f;
-        isPaused = false;
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            if (pausePanel.activeSelf)
+            {
+                Resume();
+            }
+            else
+            {
+                Pause();
+            }
+        }
     }
+
     public void Pause()
     {
-        if (isPaused) return;
-        isPaused = true;
+        if (pausePanel.activeSelf && !pauseButton.activeSelf)
+        {
+            return;
+        }
 
         if (pausePanel != null) pausePanel.SetActive(true);
         if (pauseButton != null) pauseButton.SetActive(false);
 
         Time.timeScale = 0f;
+        GameManager.Instance.SetGameState(GameManager.GameState.Paused);
     }
 
     public void Resume()
     {
-        if (!isPaused) return;
-        isPaused = false;
+        if (!pausePanel.activeSelf) return;
 
-        if (pausePanel != null) pausePanel.SetActive(false);
+        if (pausePanel != null) pausePanel.SetActive(false); 
         if (pauseButton != null) pauseButton.SetActive(true);
 
         Time.timeScale = 1f;
+        GameManager.Instance.SetGameState(GameManager.GameState.Playing);
     }
 
     public void Restart()
@@ -53,6 +62,7 @@ public class PanelControl : MonoBehaviour
 
     public void showNextLevelPanel()
     {
+        GameManager.Instance.SetGameState(GameManager.GameState.Won);
         if (nextLevelPanel != null)
         {
             nextLevelPanel.SetActive(true);
@@ -61,7 +71,6 @@ public class PanelControl : MonoBehaviour
         Time.timeScale = 0;
         Debug.Log("CALLING SHOW PANEL");
         Debug.Log("Panel: " + nextLevelPanel);
-
     }
 
     public void LoadNextLevel()
@@ -72,6 +81,7 @@ public class PanelControl : MonoBehaviour
 
     public void showLevelSelectorPanel()
     {
+        GameManager.Instance.SetGameState(GameManager.GameState.Won);
         if (levelSelectorPanel != null)
         {
             levelSelectorPanel.SetActive(true);

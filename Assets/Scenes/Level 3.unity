@@ -19094,6 +19094,51 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 49c78179cafcb7548b08c0f44bf19f8d, type: 3}
+--- !u!1 &965713470
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 965713472}
+  - component: {fileID: 965713471}
+  m_Layer: 0
+  m_Name: GameManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &965713471
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 965713470}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2eb73bc23cd570847bb7c9f6037d8c3c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::GameManager
+  player: {fileID: 1930572138}
+--- !u!4 &965713472
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 965713470}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -11.36854, y: 0.39909, z: -6.30754}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &970003938
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -37722,7 +37767,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1900212290
 Transform:
   m_ObjectHideFlags: 0
@@ -40100,6 +40145,7 @@ GameObject:
   - component: {fileID: 2003198152}
   - component: {fileID: 2003198151}
   - component: {fileID: 2003198150}
+  - component: {fileID: 2003198153}
   m_Layer: 5
   m_Name: PauseButton
   m_TagString: Untagged
@@ -40220,6 +40266,23 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2003198148}
   m_CullTransparentMesh: 1
+--- !u!114 &2003198153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2003198148}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4dd076841893720469f80188066b7f59, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PanelControl
+  pauseButton: {fileID: 2003198148}
+  pausePanel: {fileID: 1900212289}
+  nextLevelPanel: {fileID: 0}
+  nextLevel: 
+  levelSelectorPanel: {fileID: 0}
 --- !u!1001 &2003638975
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -43491,3 +43554,4 @@ SceneRoots:
   - {fileID: 1258746901}
   - {fileID: 1565758094}
   - {fileID: 1473973784}
+  - {fileID: 965713472}
