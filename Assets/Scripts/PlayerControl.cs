@@ -37,6 +37,11 @@ public class PlayerControl : MonoBehaviour
     public bool inCoolDown = false;
     public float skillCoolDown;
 
+    private GameObject dashingSmoke;
+    public GameObject protectionShield;
+
+    public GameObject implosionPrefab;
+
     [SerializeField] private SkillVisualization skillVisualization;
     [SerializeField] private PlayerHearts playerHearts;
 
@@ -57,6 +62,7 @@ public class PlayerControl : MonoBehaviour
                 speed *= 1.2f;
                 skillCoolDown = 15f;
                 isScout = true;
+                dashingSmoke = transform.Find("vfx_Smoke_01").gameObject;
                 break;
 
             case HeroSelect.Hero.Tanya:
@@ -68,6 +74,7 @@ public class PlayerControl : MonoBehaviour
             case HeroSelect.Hero.Mediv:
                 skillCoolDown = 20f;
                 isMediv = true;
+                protectionShield = transform.Find("vfx_Shield_01").gameObject;
                 break;
         }
         originalSpeed = speed;
@@ -325,6 +332,10 @@ public class PlayerControl : MonoBehaviour
                 // tanya's skill
                 if(megaBomb)
                 {
+                    // visual effect for mega bomb
+                    GameObject implosion = Instantiate(implosionPrefab, spawnPos, spawnRot);
+                    bombInstance.transform.localScale *= 1.3f;
+                    Destroy(implosion, 4f);
                     bc.blastRange *= 2;
                 }
             }
@@ -359,6 +370,8 @@ public class PlayerControl : MonoBehaviour
 
         float endTime = Time.time + dashDuration;
 
+        dashingSmoke.SetActive(true);
+
         // Dash forward using your existing Move() and collision system
         while (Time.time < endTime)
         {
@@ -374,6 +387,8 @@ public class PlayerControl : MonoBehaviour
                 break;  // hit wall -> stop dash
             }
         }
+
+        dashingSmoke.SetActive(false);
 
         // Reset speed
         speed = originalSpeed;

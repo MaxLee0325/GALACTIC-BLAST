@@ -16,6 +16,15 @@ public class PanelControl : MonoBehaviour
     [Header("Level Selector Panel")]
     public GameObject levelSelectorPanel;
 
+    public enum Level
+    {
+        Level1,
+        Level2,
+        Level3
+    }
+
+    public static Level SelectedLevel { get; private set; }
+
     void Start()
     {
         if (pausePanel != null) pausePanel.SetActive(false);
@@ -23,6 +32,7 @@ public class PanelControl : MonoBehaviour
         Time.timeScale = 1f;
         isPaused = false;
     }
+
     public void Pause()
     {
         if (isPaused) return;
@@ -82,7 +92,28 @@ public class PanelControl : MonoBehaviour
     public void GoToLevel(string level)
     {
         Time.timeScale = 1;
-        SceneManager.LoadScene(level);
+        
+        switch(level)
+        {
+            case "Level 1":
+                SelectedLevel = Level.Level1;
+                break;
+            case "Level 2":
+                SelectedLevel = Level.Level2;
+                break;
+            case "Level 3":
+                SelectedLevel = Level.Level3;
+                break;
+            default:
+                SelectedLevel = Level.Level1; // fallback to default level
+                break;
+        }
+
+        SceneManager.LoadScene("Hero Selector");
+    }
+
+    public void GoToLevelSelector(){
+        SceneManager.LoadScene("Level Selector");
     }
 
     public void selectHero(){

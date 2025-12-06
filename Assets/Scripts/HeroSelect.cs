@@ -17,8 +17,22 @@ public class HeroSelect : MonoBehaviour
         SelectedHero = hero;
         Debug.Log("Selected Hero: " + hero);
 
-        // Load Level 1 after picking the character
-        SceneManager.LoadScene("Level 1");
+        // Load level according to selected level
+        string levelToLoad = "Level 1"; // default
+        switch(PanelControl.SelectedLevel)
+        {
+            case PanelControl.Level.Level1:
+                levelToLoad = "Level 1";
+                break;
+            case PanelControl.Level.Level2:
+                levelToLoad = "Level 2";
+                break;
+            case PanelControl.Level.Level3:
+                levelToLoad = "Level 3";
+                break;
+        }
+
+        SceneManager.LoadScene(levelToLoad);
     }
 
     public void GoBack(){

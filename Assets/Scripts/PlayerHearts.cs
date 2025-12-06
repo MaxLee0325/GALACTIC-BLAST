@@ -28,6 +28,8 @@ public class PlayerHearts : MonoBehaviour
 
     private List<Image> heartImages = new List<Image>();
 
+    [SerializeField] private PlayerControl playerControl;
+
     void Awake()
     {
         // Example: Tanya has 7 hearts
@@ -49,13 +51,15 @@ public class PlayerHearts : MonoBehaviour
         if (isInvincible && Time.time >= invincibleEndTime)
         {
             isInvincible = false;
+            playerControl.protectionShield.SetActive(false); 
             Debug.Log("Invincibility ended.");
-        }
+        } 
     }
 
     public void Protect()
     {
         isInvincible = true;
+        playerControl.protectionShield.SetActive(true);
         invincibleEndTime = Time.time + 3f; // 3 seconds
         Debug.Log("Player is now invincible for 3 seconds!");
     }

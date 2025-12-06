@@ -43,6 +43,8 @@ public class BombController : MonoBehaviour
     [Header("Damage")]
     public int damage = 1;
 
+    public GameObject explosionPrefab;
+
     void Start()
     {
         initialScale = transform.localScale;
@@ -231,11 +233,11 @@ public class BombController : MonoBehaviour
             }
         }
 
+        GameObject explosion = Instantiate(explosionPrefab, transform.position, transform.rotation);
         explosionAudio?.Play();
 
         // Destroy bomb after short delay to allow audio/flash
-        Destroy(gameObject, 0.5f);
-
+        Destroy(gameObject, 0.6f);
     }
 
     private void DrawExplosionBeams()
