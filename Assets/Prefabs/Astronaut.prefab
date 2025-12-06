@@ -232,7 +232,7 @@ MonoBehaviour:
   skillCoolDown: 0
   protectionShield: {fileID: 7314526620251459061, guid: ccf28ea29cf499744ac31bab90073aba, type: 3}
   implosionPrefab: {fileID: 6441873369525384307, guid: 0f3d407feb92ebb49b98d0157de5008a, type: 3}
-  skillVisualization: {fileID: 4842029504677766159, guid: c31b5b8f5545644c988d458a24234821, type: 3}
+  skillVisualization: {fileID: 0}
   playerHearts: {fileID: 5693348508749694600}
   maxPowerUpAudio: {fileID: 0}
   dashAudio: {fileID: 705708332449328618}
@@ -258,10 +258,10 @@ CapsuleCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Radius: 0.8
+  m_Radius: 0.6920081
   m_Height: 2.3
   m_Direction: 1
-  m_Center: {x: 0, y: 1.5, z: 0}
+  m_Center: {x: -1.2287292e-16, y: 1.5, z: -0.018056033}
 --- !u!111 &8390678821895560433
 Animation:
   m_ObjectHideFlags: 0

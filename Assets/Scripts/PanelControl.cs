@@ -38,8 +38,8 @@ public class PanelControl : MonoBehaviour
         if (isPaused) return;
         isPaused = true;
 
-        if (pausePanel != null) pausePanel.SetActive(true);
-        if (pauseButton != null) pauseButton.SetActive(false);
+        pausePanel.SetActive(true);
+        pauseButton.SetActive(false);
 
         Time.timeScale = 0f;
     }
