@@ -98,13 +98,6 @@ public class BombController : MonoBehaviour
             ShowBlastPreview();
         }
 
-        // Make countdown face camera
-        if (countdownText != null && Camera.main != null)
-        {
-            countdownText.transform.LookAt(Camera.main.transform);
-            countdownText.transform.Rotate(0, 180, 0);
-        }
-
         if (explosionTime <= 0f && !hasExploded)
         {
             countdownText.text = "BOOM";
