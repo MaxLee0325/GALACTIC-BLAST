@@ -7,11 +7,16 @@ public class SkillVisualization : MonoBehaviour
     public int coolDown;
     public bool isCoolingDown = false;
     public TMP_Text statusText;
+    private Transform icon; 
+    private Vector3 originalScale;
+
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
     void Start()
     {
         LoadHero();
+        icon = transform;
+        originalScale = icon.localScale;
         Transform statusTransform = transform.Find("StatusText");
         statusText = statusTransform.GetComponent<TMP_Text>();
     }
@@ -51,6 +56,42 @@ public class SkillVisualization : MonoBehaviour
         StartCoroutine(CountdownRoutine());
     }
 
+    public void Pop(){
+        StartCoroutine(PopRoutine());
+    }
+
+    private IEnumerator PopRoutine()
+    {
+        
+        
+        Vector3 popScale = originalScale * 1.2f;   // 20% bigger
+
+        float popTime = 0.1f;
+        float returnTime = 0.1f;
+
+        // Scale up
+        float t = 0f;
+        while (t < popTime)
+        {
+            t += Time.deltaTime;
+            float progress = t / popTime;
+            icon.localScale = Vector3.Lerp(originalScale, popScale, progress);
+            yield return null;
+        }
+
+        // Scale back
+        t = 0f;
+        while (t < returnTime)
+        {
+            t += Time.deltaTime;
+            float progress = t / returnTime;
+            icon.localScale = Vector3.Lerp(popScale, originalScale, progress);
+            yield return null;
+        }
+
+        icon.localScale = originalScale; // ensure perfect reset
+    }
+
     private IEnumerator CountdownRoutine()
     {
         isCoolingDown = true;
@@ -59,7 +100,6 @@ public class SkillVisualization : MonoBehaviour
         while (remainingTime > 0)
         {
             statusText.text = remainingTime.ToString();
-            Debug.Log("Count Down: " + statusText.text);
             yield return new WaitForSeconds(1f);
             remainingTime--;
         }

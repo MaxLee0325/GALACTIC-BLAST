@@ -35,8 +35,10 @@ public class PlayerControl : MonoBehaviour
     public bool isMediv = false;
     public bool isTanya = false;
     public bool inCoolDown = false;
+    public float skillCoolDown;
 
     [SerializeField] private SkillVisualization skillVisualization;
+    [SerializeField] private PlayerHearts playerHearts;
 
 
     [Header("Audio")]
@@ -53,15 +55,18 @@ public class PlayerControl : MonoBehaviour
         {
             case HeroSelect.Hero.Scout:
                 speed *= 1.2f;
+                skillCoolDown = 15f;
                 isScout = true;
                 break;
 
             case HeroSelect.Hero.Tanya:
+                skillCoolDown = 15f;
                 speed *= 0.85f;
                 isTanya = true;
                 break;
 
             case HeroSelect.Hero.Mediv:
+                skillCoolDown = 20f;
                 isMediv = true;
                 break;
         }
@@ -74,66 +79,44 @@ public class PlayerControl : MonoBehaviour
 
         Vector3 direction = Vector3.zero;
 
-        if (Input.GetKeyDown(KeyCode.E) && isScout)
+        // cast special hero skills
+        if (Input.GetKeyDown(KeyCode.E))
         {
             if (!inCoolDown)
             {
-                StartCoroutine(ScoutDash());
-                skillVisualization.startCountDown();
-            }
-            IEnumerator ScoutDash()
-            {
-                inCoolDown = true;
-
-                float dashSpeed = speed * 2.5f;     // dash is 2.5x faster
-                float dashDuration = 0.2f;              // dash time
-                float coolDownTime = 5f;                // E skill cooldown
-
-                speed = dashSpeed;
-
-                float endTime = Time.time + dashDuration;
-
-                // Dash forward using your existing Move() and collision system
-                while (Time.time < endTime)
+                if(isScout)
                 {
-                    Vector3 forwardDir = transform.forward;
-
-                    // If the next tile is free, move
-                    if (CanMove(forwardDir))
-                    {
-                        yield return StartCoroutine(Move(forwardDir));
-                    }
-                    else
-                    {
-                        break;  // hit wall -> stop dash
-                    }
+                    StartCoroutine(ScoutDash());
                 }
-
-                // Reset speed
-                speed = originalSpeed;
-
-                // Skill cooldown
-                yield return new WaitForSeconds(coolDownTime);
-
-                inCoolDown = false;
+                else if(isMediv)
+                {
+                    StartCoroutine(MedicvProtect());
+                }
+                else if(isTanya)
+                {
+                    StartCoroutine(TanyaMegaBomb());
+                }
+                skillVisualization.startCountDown();
+            } 
+            else
+            {
+                skillVisualization.Pop();
             }
         }
-
-        
         
         if (Input.GetKey(KeyCode.UpArrow))
         {
             direction = Vector3.forward;
         }
-        if (Input.GetKey(KeyCode.DownArrow))
+        else if (Input.GetKey(KeyCode.DownArrow))
         {
             direction = Vector3.back;
         }
-        if (Input.GetKey(KeyCode.LeftArrow))
+        else if (Input.GetKey(KeyCode.LeftArrow))
         {
             direction = Vector3.left;
         }
-        if (Input.GetKey(KeyCode.RightArrow))
+        else if (Input.GetKey(KeyCode.RightArrow))
         {
             direction = Vector3.right;
         }
@@ -153,10 +136,9 @@ public class PlayerControl : MonoBehaviour
             }
         }
 
-        if (Input.GetKeyDown(KeyCode.Space) && Time.time - _lastBombTime >= bombCooldown)
+        if (Input.GetKeyDown(KeyCode.Space))
         {
             DropBomb();
-            _lastBombTime = Time.time;
         }
     }
 
@@ -298,9 +280,11 @@ public class PlayerControl : MonoBehaviour
         isMoving = false;
     }
 
-    void DropBomb()
+    void DropBomb(bool megaBomb = false)
     {
-        if (!bombPrefab) { Debug.LogWarning("No bombPrefab set on PlayerControl."); return; }
+
+        if(!(Time.time - _lastBombTime >= bombCooldown)) return;
+        _lastBombTime = Time.time;
 
         Vector3 spawnPos = new Vector3(Mathf.Round(transform.position.x), (float)(transform.position.y + 0.5), Mathf.Round(transform.position.z));
         Quaternion spawnRot = Quaternion.identity;
@@ -333,14 +317,70 @@ public class PlayerControl : MonoBehaviour
         {
             GameObject bombInstance = Instantiate(selectedPrefab, spawnPos, spawnRot);
 
-
             BombController bc = bombInstance.GetComponent<BombController>();
             if (bc != null)
             {
                 bc.blastRange += rangePowerUpLevel * rangePerLevel;
+
+                // tanya's skill
+                if(megaBomb)
+                {
+                    bc.blastRange *= 2;
+                }
             }
         }
         
+    }
+
+    private IEnumerator MedicvProtect()
+    {
+        inCoolDown = true;
+        playerHearts.Protect();
+        yield return new WaitForSeconds(skillCoolDown);
+        inCoolDown = false;
+    }
+
+    private IEnumerator TanyaMegaBomb()
+    {
+        inCoolDown = true;
+        DropBomb(true);
+        yield return new WaitForSeconds(skillCoolDown);
+        inCoolDown = false;
+    }
+
+    private IEnumerator ScoutDash()
+    {
+        inCoolDown = true;
+
+        float dashSpeed = speed * 2.5f;     // dash is 2.5x faster
+        float dashDuration = 0.2f;              // dash time
+
+        speed = dashSpeed;
+
+        float endTime = Time.time + dashDuration;
+
+        // Dash forward using your existing Move() and collision system
+        while (Time.time < endTime)
+        {
+            Vector3 forwardDir = transform.forward;
+
+            // If the next tile is free, move
+            if (CanMove(forwardDir))
+            {
+                yield return StartCoroutine(Move(forwardDir));
+            }
+            else
+            {
+                break;  // hit wall -> stop dash
+            }
+        }
+
+        // Reset speed
+        speed = originalSpeed;
+
+        yield return new WaitForSeconds(skillCoolDown);
+
+        inCoolDown = false;
     }
 
     private void PlayMaxPowerUpAudio()
