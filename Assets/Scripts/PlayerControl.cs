@@ -143,14 +143,15 @@ public class PlayerControl : MonoBehaviour
             Destroy(other.gameObject);
         }
         // Heart Power-up
-        if (other.CompareTag("PowerUp_Heart"))
+        else if (other.CompareTag("PowerUp_Heart"))
         {
             var hearts = GetComponentInChildren<PlayerHearts>();
             if (hearts != null) hearts.PickupHeart();
             Destroy(other.gameObject);
         }
-        // Speed
-        if (other.CompareTag("PowerUp_Speed"))
+
+        // Speed Power-up
+        else if (other.CompareTag("PowerUp_Speed"))
         {
             if (countSpeedPowerUp < maxSpeedPowerUp)
             {
@@ -164,8 +165,9 @@ public class PlayerControl : MonoBehaviour
             }
             Destroy(other.gameObject);
         }
-        // Range
-        if (other.CompareTag("PowerUp_Range"))
+
+        // Range power-up
+        else if (other.CompareTag("PowerUp_Range"))
         {
             if (rangePowerUpLevel < maxRangePowerUp)
                 rangePowerUpLevel++;
@@ -173,8 +175,9 @@ public class PlayerControl : MonoBehaviour
                 PlayMaxPowerUpAudio();
             Destroy(other.gameObject);
         }
-        // Bomb count
-        if (other.CompareTag("PowerUp_Bomb"))
+
+        // Bomb power-up
+        else if (other.CompareTag("PowerUp_Bomb"))
         {
             if (countBombPowerUp < maxBombPowerUp)
                 countBombPowerUp += 1;
