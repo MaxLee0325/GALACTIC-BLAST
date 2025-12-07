@@ -13,8 +13,8 @@ public class PanelControl : MonoBehaviour
     public GameObject nextLevelPanel;
     public string nextLevel;
 
-    [Header("Panel To Show")]
-    public GameObject panel;
+    [Header("Level Selector Panel")]
+    public GameObject levelSelectorPanel;
 
     public enum Level
     {
@@ -80,11 +80,11 @@ public class PanelControl : MonoBehaviour
         SceneManager.LoadScene(nextLevel);
     }
 
-    public void showPanel()
+    public void showLevelSelectorPanel()
     {
-        if (panel != null)
+        if (levelSelectorPanel != null)
         {
-            panel.SetActive(true);
+            levelSelectorPanel.SetActive(true);
         }
         Time.timeScale = 0;
     }
