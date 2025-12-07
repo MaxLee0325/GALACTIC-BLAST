@@ -384,7 +384,7 @@ GameObject:
   - component: {fileID: 256780970}
   - component: {fileID: 256780969}
   m_Layer: 5
-  m_Name: Credits Text
+  m_Name: How To Play Text
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -429,7 +429,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: Credits
+  m_text: How To Play
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
   m_sharedMaterial: {fileID: 2140032, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
@@ -1388,8 +1388,8 @@ MonoBehaviour:
       m_Calls:
       - m_Target: {fileID: 988479991}
         m_TargetAssemblyTypeName: PanelControl, Assembly-CSharp
-        m_MethodName: selectHero
-        m_Mode: 1
+        m_MethodName: GoToLevel
+        m_Mode: 5
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
@@ -1569,7 +1569,7 @@ GameObject:
   - component: {fileID: 1836026647}
   - component: {fileID: 1836026646}
   m_Layer: 5
-  m_Name: Credits Button
+  m_Name: How To Play Button
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1648,7 +1648,7 @@ MonoBehaviour:
           m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
           m_IntArgument: 0
           m_FloatArgument: 0
-          m_StringArgument: Credits
+          m_StringArgument: How To Play
           m_BoolArgument: 0
         m_CallState: 2
 --- !u!114 &1836026647
