@@ -97,19 +97,23 @@ public class PanelControl : MonoBehaviour
         {
             case "Level 1":
                 SelectedLevel = Level.Level1;
+                selectHero();
                 break;
             case "Level 2":
                 SelectedLevel = Level.Level2;
+                selectHero();
                 break;
             case "Level 3":
                 SelectedLevel = Level.Level3;
+                selectHero();
+                break;
+            case "How To Play":
+                SceneManager.LoadScene("How To Play");
                 break;
             default:
                 SelectedLevel = Level.Level1; // fallback to default level
                 break;
         }
-
-        SceneManager.LoadScene("Hero Selector");
     }
 
     public void GoToLevelSelector(){
