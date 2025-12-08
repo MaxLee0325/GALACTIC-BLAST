@@ -1,14 +1,15 @@
 using UnityEngine;
 using TMPro;
 using System.Collections;
+using System.Collections.Generic;
 
 public class BombController : MonoBehaviour
 {
     [Header("Explosion Settings")]
-    public float explosionTime = 4f;       // Time before explosion
+    public float explosionTime = 4f;
     public float blastRange = 1f;
-    public GameObject blastBeamPrefab;     // Prefab with LineRenderer
-    public float beamDuration = 0.3f;      // Explosion beam duration
+    public GameObject blastBeamPrefab;
+    public float beamDuration = 0.3f;
 
     [Header("Beam Visuals")]
     public Gradient beamColorGradient;
@@ -23,15 +24,23 @@ public class BombController : MonoBehaviour
     public float previewStartWidth = 0.15f;
     public float previewEndWidth = 0.15f;
 
+    [Header("Audio")]
     [SerializeField] private AudioSource explosionAudio;
+    [SerializeField] private AudioClip bombPlacementSound;
+    [SerializeField] private AudioClip bombTickingSound;
+    [SerializeField] private AudioClip fireExplosionSound;
+    [SerializeField] private AudioClip waterExplosionSound;
+    [SerializeField] private AudioClip electricExplosionSound;
+    [SerializeField] private AudioClip chainReactionSound;
 
     private TextMeshProUGUI countdownText;
     private Vector3 initialScale;
     private bool hasExploded = false;
+    private AudioSource tickingAudioSource;
 
     // Separate arrays for preview and explosion
     private GameObject[] previewBeams;
-    public GameObject PreviewBeamPrefab;     // Prefab with LineRenderer
+    public GameObject PreviewBeamPrefab;
     private float blinkTimer = 0f;
     private bool previewVisible = true;
 
@@ -39,6 +48,11 @@ public class BombController : MonoBehaviour
     public GameObject burningGroundPrefab;
     public GameObject wetGroundPrefab;
     public GameObject ElectrifiedWaterGroundPrefab;
+
+    [Header("Ground Effect Audio")]
+    [SerializeField] private AudioClip burningGroundLoopSound;
+    [SerializeField] private AudioClip wetGroundLoopSound;
+    [SerializeField] private AudioClip electricFieldLoopSound;
 
     [Header("Damage")]
     public int damage = 1;
@@ -55,6 +69,17 @@ public class BombController : MonoBehaviour
             countdownText.transform.localScale = Vector3.one;
             countdownText.alignment = TextAlignmentOptions.Center;
         }
+
+        // Play bomb placement sound
+        if (bombPlacementSound != null && explosionAudio != null)
+        {
+            explosionAudio.PlayOneShot(bombPlacementSound, 0.5f);
+        }
+
+        // Setup ticking audio source
+        tickingAudioSource = gameObject.AddComponent<AudioSource>();
+        tickingAudioSource.spatialBlend = 1f; // 3D sound
+        tickingAudioSource.loop = false;
 
         // Default gradient if none set
         if (beamColorGradient == null || beamColorGradient.colorKeys.Length == 0)
@@ -86,6 +111,13 @@ public class BombController : MonoBehaviour
         // Countdown
         explosionTime -= Time.deltaTime;
         UpdateCountdownText();
+
+        // Play ticking sound in last 0.5 seconds
+        if (explosionTime <= 0.5f && explosionTime > 0f && bombTickingSound != null && !tickingAudioSource.isPlaying)
+        {
+            tickingAudioSource.clip = bombTickingSound;
+            tickingAudioSource.Play();
+        }
 
         // Preview blinking speed
         float blinkSpeed = explosionTime <= 0.6f ? 10f : (explosionTime <= 2f ? 4f : 2f);
@@ -181,62 +213,213 @@ public class BombController : MonoBehaviour
                 if (beam != null) Destroy(beam);
         }
 
-        // Instantiate ground effect based on tag
-        Vector3 groundPosition = new Vector3(transform.position.x, -0.412f, transform.position.z);
+        // Play appropriate explosion sound based on bomb type
+        if (explosionAudio != null)
+        {
+            AudioClip explosionClip = null;
+            
+            if (CompareTag("FireBomb") && fireExplosionSound != null)
+                explosionClip = fireExplosionSound;
+            else if (CompareTag("WaterBomb") && waterExplosionSound != null)
+                explosionClip = waterExplosionSound;
+            else if (CompareTag("ElectricBomb") && electricExplosionSound != null)
+                explosionClip = electricExplosionSound;
+            
+            if (explosionClip != null)
+                explosionAudio.PlayOneShot(explosionClip);
+            else
+                explosionAudio.Play();
+        }
 
-        // This ensures burning ground will not be created if the bomb is on wet ground
-        if (CompareTag("FireBomb"))
+        // FIXED: Spawn ground effects at discrete grid positions only
+        SpawnGroundEffectsAlongBlast();
+
+        DrawExplosionBeams();
+        FlashBombMesh();
+
+        GameObject explosion = Instantiate(explosionPrefab, transform.position, transform.rotation);
+
+        // Destroy bomb after short delay to allow audio/flash
+        Destroy(gameObject, 0.6f);
+    }
+
+    // FIXED METHOD: Spawn ground effects at discrete grid positions only (1 per tile)
+    // This prevents overlap and creates clean cross pattern
+    private void SpawnGroundEffectsAlongBlast()
+    {
+        Vector3[] directions = { Vector3.forward, Vector3.back, Vector3.right, Vector3.left };
+        Collider selfCollider = GetComponent<Collider>();
+
+        // Track which positions already have effects to prevent duplicates
+        HashSet<Vector3> spawnedPositions = new HashSet<Vector3>();
+
+        // Spawn at bomb position first (rounded to grid)
+        Vector3 bombGridPos = new Vector3(
+            Mathf.Round(transform.position.x),
+            transform.position.y,
+            Mathf.Round(transform.position.z)
+        );
+        SpawnGroundEffectAtPosition(bombGridPos);
+        spawnedPositions.Add(bombGridPos);
+
+        // Then spawn along each direction - ONE TILE AT A TIME
+        foreach (var dir in directions)
+        {
+            // Check each discrete tile position along the blast range
+            for (int i = 1; i <= Mathf.RoundToInt(blastRange); i++)
+            {
+                // Calculate grid position (whole numbers only - prevents fractional positions)
+                Vector3 gridPosition = bombGridPos + (dir * i);
+                
+                // Skip if we already spawned here (prevents duplicates at corners)
+                if (spawnedPositions.Contains(gridPosition))
+                    continue;
+                
+                // Raycast to see if we hit a wall before this position
+                RaycastHit[] hits = Physics.RaycastAll(bombGridPos, dir, i + 0.5f);
+                System.Array.Sort(hits, (a, b) => a.distance.CompareTo(b.distance));
+                
+                bool blocked = false;
+                foreach (var hit in hits)
+                {
+                    if (hit.collider == null || hit.collider == selfCollider) continue;
+                    
+                    if (hit.collider.CompareTag("Wall"))
+                    {
+                        blocked = true;
+                        break;
+                    }
+                }
+                
+                if (blocked) break; // Stop spawning in this direction
+                
+                // Spawn ground effect at this grid position
+                SpawnGroundEffectAtPosition(gridPosition);
+                spawnedPositions.Add(gridPosition);
+            }
+        }
+    }
+
+    // Helper method to spawn ground effect at specific position
+    private void SpawnGroundEffectAtPosition(Vector3 position)
+    {
+        // Always use grid-aligned position for ground effects
+        Vector3 groundPosition = new Vector3(
+            Mathf.Round(position.x), 
+            -0.412f,  // Ground level
+            Mathf.Round(position.z)
+        );
+
+        // Fire Bomb Logic
+        if (CompareTag("FireBomb") && burningGroundPrefab != null)
         {
             bool touchingWet = false;
-
-            Collider[] hits = Physics.OverlapSphere(transform.position, 0.45f);
+            Collider[] hits = Physics.OverlapSphere(groundPosition, 0.45f);
             foreach (var h in hits)
             {
                 if (h != null && h.CompareTag("WetGround"))
                 {
                     touchingWet = true;
+                    Destroy(h.gameObject); // Extinguish wet ground
                     break;
                 }
             }
 
             if (!touchingWet)
             {
-                Instantiate(burningGroundPrefab, groundPosition, Quaternion.identity);
-            }
-        }
-
-
-        else if (CompareTag("WaterBomb"))
-        {
-            Instantiate(wetGroundPrefab, groundPosition, Quaternion.identity);
-        }
-
-
-        DrawExplosionBeams();
-        FlashBombMesh();
-
-        if (previewBeams != null)
-        {
-            foreach (GameObject beam in previewBeams)
-            {
-                if (beam != null)
+                GameObject burningGround = Instantiate(burningGroundPrefab, groundPosition, Quaternion.identity);
+                
+                // Add looping sound to burning ground
+                if (burningGroundLoopSound != null)
                 {
-                    Destroy(beam);
+                    AudioSource groundAudio = burningGround.AddComponent<AudioSource>();
+                    groundAudio.clip = burningGroundLoopSound;
+                    groundAudio.loop = true;
+                    groundAudio.spatialBlend = 1f; // 3D sound
+                    groundAudio.volume = 0.3f;
+                    groundAudio.Play();
                 }
             }
         }
-
-        GameObject explosion = Instantiate(explosionPrefab, transform.position, transform.rotation);
-        explosionAudio?.Play();
-
-        // Destroy bomb after short delay to allow audio/flash
-        Destroy(gameObject, 0.6f);
+        // Water Bomb Logic
+        else if (CompareTag("WaterBomb") && wetGroundPrefab != null)
+        {
+            // Don't spawn if there's already wet ground here
+            bool alreadyWet = false;
+            Collider[] hits = Physics.OverlapSphere(groundPosition, 0.45f);
+            foreach (var h in hits)
+            {
+                if (h != null && (h.CompareTag("WetGround") || h.CompareTag("ElectrifiedWaterGround")))
+                {
+                    alreadyWet = true;
+                    break;
+                }
+            }
+            
+            if (!alreadyWet)
+            {
+                GameObject wetGround = Instantiate(wetGroundPrefab, groundPosition, Quaternion.identity);
+                
+                // Add looping sound to wet ground
+                if (wetGroundLoopSound != null)
+                {
+                    AudioSource groundAudio = wetGround.AddComponent<AudioSource>();
+                    groundAudio.clip = wetGroundLoopSound;
+                    groundAudio.loop = true;
+                    groundAudio.spatialBlend = 1f;
+                    groundAudio.volume = 0.2f;
+                    groundAudio.Play();
+                }
+            }
+        }
     }
 
     private void DrawExplosionBeams()
     {
+        
         Collider selfCollider = GetComponent<Collider>();
+
+
+         // Electrify any WetGround tiles in range for electric bombs
+        if (CompareTag("ElectricBomb") && ElectrifiedWaterGroundPrefab != null)
+        {
+            Collider[] wetHits = Physics.OverlapSphere(transform.position, blastRange);
+            foreach (var h in wetHits)
+            {
+                if (h != null && h.CompareTag("WetGround"))
+                {
+                    Vector3 pos = h.transform.position;
+                    Vector3 groundPos = new Vector3(
+                        Mathf.Round(pos.x),
+                        -0.412f,               // same Y as WetGround
+                        Mathf.Round(pos.z)
+                    );
+
+                    Destroy(h.gameObject);
+
+                    GameObject electrifiedWater =
+                        Instantiate(ElectrifiedWaterGroundPrefab, groundPos, Quaternion.identity);
+
+                    if (electricFieldLoopSound != null)
+                    {
+                        AudioSource groundAudio = electrifiedWater.AddComponent<AudioSource>();
+                        groundAudio.clip = electricFieldLoopSound;
+                        groundAudio.loop = true;
+                        groundAudio.spatialBlend = 1f;
+                        groundAudio.volume = 0.4f;
+                        groundAudio.Play();
+                    }
+
+                    Debug.Log($"WetGround electrified at {groundPos}");
+                }
+            }
+        }
+
+
+
         Vector3[] directions = { Vector3.forward, Vector3.back, Vector3.right, Vector3.left };
+        
+        bool chainReactionOccurred = false;
 
         foreach (var dir in directions)
         {
@@ -265,7 +448,11 @@ public class BombController : MonoBehaviour
                 else if (hit.collider.CompareTag("Bomb"))
                 {
                     BombController other = hit.collider.GetComponent<BombController>();
-                    if (other != null && other != this) other.Explode();
+                    if (other != null && other != this)
+                    {
+                        other.Explode();
+                        chainReactionOccurred = true;
+                    }
                 }
                 else if (hit.collider.CompareTag("Player"))
                 {
@@ -275,67 +462,62 @@ public class BombController : MonoBehaviour
                 }
                 else if (CompareTag("ElectricBomb") && hit.collider.CompareTag("WetGround"))
                 {
-                    // Save position before destroying
                     Vector3 pos = hit.collider.transform.position;
-
-                    // Destroy the wet ground
                     Destroy(hit.collider.gameObject);
 
-                    // Instantiate electrified version
-                    if (ElectrifiedWaterGroundPrefab != null) // Make sure you have assigned this prefab
+                    if (ElectrifiedWaterGroundPrefab != null)
                     {
-                        Instantiate(ElectrifiedWaterGroundPrefab, pos, Quaternion.identity);
+                        GameObject electrifiedWater = Instantiate(ElectrifiedWaterGroundPrefab, pos, Quaternion.identity);
+                        
+                        // Add electric field sound
+                        if (electricFieldLoopSound != null)
+                        {
+                            AudioSource groundAudio = electrifiedWater.AddComponent<AudioSource>();
+                            groundAudio.clip = electricFieldLoopSound;
+                            groundAudio.loop = true;
+                            groundAudio.spatialBlend = 1f;
+                            groundAudio.volume = 0.4f;
+                            groundAudio.Play();
+                        }
+                        
                         Debug.Log("WetGround electrified!");
                     }
                 }
-                // Water counters fire
                 else if (CompareTag("WaterBomb") && hit.collider.CompareTag("BurningGround"))
                 {
                     Destroy(hit.collider.gameObject);
                 }
-                // Ice barrier can only be destroyed by fire bomb
                 else if (CompareTag("FireBomb") && hit.collider.CompareTag("IceBarrier"))
                 {
                     Destroy(hit.collider.gameObject);
                 }
-                // Fire bomb counters electrified wet ground
                 else if (CompareTag("FireBomb") && hit.collider.CompareTag("ElectrifiedWaterGround"))
                 {
                     Destroy(hit.collider.gameObject);
                 }
-
-                //TODO: Wait for these objects to be created
-                // // Metal barrier has 2 health
-                // else if (hit.collider.CompareTag("MetalLocker"))
-                // {
-                //     var mt = hit.collider.GetComponentInParent<MetalLocker>();
-                //     if (mt) mt.TakeDamage(1);
-                //     Debug.Log("MetalLocker Got hit!");
-                // }
-                // // Electronic door can be opened by electric bomb
-                // else if (CompareTag("ElectricBomb") && hit.collider.CompareTag("ElectronicDoor"))
-                // {
-                //     var ed = hit.collider.GetComponentInParent<ElectricDoor>();
-                //     if (ed) mt.Open();
-                //     Debug.Log("Electronic Door Opened!");
-                // }
-                // else if (CompareTag("ElectricBomb") && hit.collider.CompareTag("Enemy"))
-                // {
-                //     var em = hit.collider.GetComponentInParent<Enemy>();
-                //     if (em) em.takeElectricDamage();
-                //     Debug.Log("ElectricChainDamage to enemy!");
-                // }
             }
 
-            // Fallback (for CharacterController-only players without a Collider):
+            // Fallback for CharacterController-only players (WITH WALL CHECK)
             GameObject player = GameObject.FindGameObjectWithTag("Player");
             if (player)
             {
-                float dist = Vector3.Distance(transform.position, player.transform.position);
-                if (dist <= blastRange)
+                Vector3 directionToPlayer = (player.transform.position - transform.position).normalized;
+                float distToPlayer = Vector3.Distance(transform.position, player.transform.position);
+                
+                // Only damage if player is within range AND in the same direction as this blast beam
+                bool playerInThisDirection = Vector3.Dot(directionToPlayer, dir) > 0.8f;
+                
+                if (distToPlayer <= blastRange && playerInThisDirection)
                 {
-                    var hearts = player.GetComponent<PlayerHearts>();
-                    if (hearts) hearts.TakeDamage(damage);
+                    // Check if there's a wall between bomb and player
+                    RaycastHit wallCheck;
+                    bool wallBlocking = Physics.Raycast(transform.position, directionToPlayer, out wallCheck, distToPlayer);
+                    
+                    if (!wallBlocking || !wallCheck.collider.CompareTag("Wall"))
+                    {
+                        var hearts = player.GetComponent<PlayerHearts>();
+                        if (hearts) hearts.TakeDamage(damage);
+                    }
                 }
             }
 
@@ -348,7 +530,7 @@ public class BombController : MonoBehaviour
                 {
                     lr.positionCount = 2;
                     lr.SetPosition(0, transform.position);
-                    lr.SetPosition(1, transform.position); // Start at bomb
+                    lr.SetPosition(1, transform.position);
                     lr.startWidth = beamStartWidth;
                     lr.endWidth = beamEndWidth;
                     lr.colorGradient = beamColorGradient;
@@ -356,6 +538,12 @@ public class BombController : MonoBehaviour
                 }
                 Destroy(beam, beamDuration);
             }
+        }
+        
+        // Play chain reaction sound if it occurred
+        if (chainReactionOccurred && chainReactionSound != null && explosionAudio != null)
+        {
+            explosionAudio.PlayOneShot(chainReactionSound, 0.7f);
         }
     }
 
@@ -369,13 +557,10 @@ public class BombController : MonoBehaviour
                 yield break;
 
             elapsed += Time.deltaTime;
-
             lr.SetPosition(1, Vector3.Lerp(transform.position, endPoint, elapsed / duration));
-
             yield return null;
         }
     }
-
 
     private void FlashBombMesh()
     {
@@ -399,17 +584,15 @@ public class BombController : MonoBehaviour
                 if (beam != null) Destroy(beam);
         }
 
-        // Optional: show DEFUSED text
         if (countdownText != null)
         {
             countdownText.text = "DEFUSED";
             countdownText.color = Color.cyan;
         }
 
-        // No explosion effects, no ground effects, no damage
         explosionAudio?.Stop();
+        tickingAudioSource?.Stop();
 
-        // Destroy bomb shortly after defuse
         Destroy(gameObject, 0.2f);
     }
 }
