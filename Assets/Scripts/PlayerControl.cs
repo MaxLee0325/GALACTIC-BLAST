@@ -30,7 +30,7 @@ public class PlayerControl : MonoBehaviour
     public bool isMediv = false;
     public bool isTanya = false;
     public bool inCoolDown = false;
-    public float skillCoolDown;
+    private float skillCoolDown = 8f;
     private GameObject dashingSmoke;
     public GameObject protectionShield;
     public GameObject implosionPrefab;
@@ -43,6 +43,8 @@ public class PlayerControl : MonoBehaviour
     [SerializeField] private AudioSource protectAudio;
     [SerializeField] private AudioSource megaBombAudio;
     [SerializeField] private AudioSource inCoolDownAudio;
+    [SerializeField] private AudioSource powerUpAudio;
+
 
     void Start()
     {
@@ -58,17 +60,14 @@ public class PlayerControl : MonoBehaviour
         {
             case HeroSelect.Hero.Scout:
                 speed *= 1.2f;
-                skillCoolDown = 15f;
                 isScout = true;
                 dashingSmoke = transform.Find("vfx_Smoke_01").gameObject;
                 break;
             case HeroSelect.Hero.Tanya:
-                skillCoolDown = 15f;
                 speed *= 0.85f;
                 isTanya = true;
                 break;
             case HeroSelect.Hero.Mediv:
-                skillCoolDown = 20f;
                 isMediv = true;
                 protectionShield = transform.Find("vfx_Shield_01").gameObject;
                 break;
@@ -128,18 +127,21 @@ public class PlayerControl : MonoBehaviour
         if (other.CompareTag("PowerUp_Water"))
         {
             currentBombType = BombType.Water;
+            powerUpAudio.Play();
             Destroy(other.gameObject);
         }
         // Fire power-up
         else if (other.CompareTag("PowerUp_Fire"))
         {
             currentBombType = BombType.Fire;
+            powerUpAudio.Play();
             Destroy(other.gameObject);
         }
         // Electric power-up
         else if (other.CompareTag("PowerUp_Electric"))
         {
             currentBombType = BombType.Electric;
+            powerUpAudio.Play();
             Destroy(other.gameObject);
         }
         // Heart Power-up
@@ -157,10 +159,11 @@ public class PlayerControl : MonoBehaviour
                 speed += powerUpSpeed;
                 originalSpeed += powerUpSpeed;
                 countSpeedPowerUp += 1;
+                powerUpAudio.Play();
             }
             else
             {
-                PlayMaxPowerUpAudio();
+                maxPowerUpAudio.Play();
             }
             Destroy(other.gameObject);
         }
@@ -168,18 +171,24 @@ public class PlayerControl : MonoBehaviour
         if (other.CompareTag("PowerUp_Range"))
         {
             if (rangePowerUpLevel < maxRangePowerUp)
+            {
                 rangePowerUpLevel++;
+                powerUpAudio.Play();
+            }
             else
-                PlayMaxPowerUpAudio();
+                maxPowerUpAudio.Play();
             Destroy(other.gameObject);
         }
         // Bomb count
         if (other.CompareTag("PowerUp_Bomb"))
         {
             if (countBombPowerUp < maxBombPowerUp)
+            {
                 countBombPowerUp += 1;
+                powerUpAudio.Play();
+            }
             else
-                PlayMaxPowerUpAudio();
+                maxPowerUpAudio.Play();
             Destroy(other.gameObject);
         }
     }
@@ -286,13 +295,5 @@ public class PlayerControl : MonoBehaviour
         rb.linearVelocity = Vector3.zero;
         yield return new WaitForSeconds(skillCoolDown);
         inCoolDown = false;
-    }
-
-    private void PlayMaxPowerUpAudio()
-    {
-        if (maxPowerUpAudio != null && !maxPowerUpAudio.isPlaying)
-        {
-            maxPowerUpAudio.Play();
-        }
     }
 }

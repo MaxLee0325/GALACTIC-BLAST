@@ -4,7 +4,7 @@ using System.Collections;
 
 public class SkillVisualization : MonoBehaviour
 {
-    public int coolDown;
+    private float coolDown = 8f;
     public bool isCoolingDown = false;
     public TMP_Text statusText;
     private Transform icon; 
@@ -31,17 +31,14 @@ public class SkillVisualization : MonoBehaviour
         switch (HeroSelect.SelectedHero)
         {
             case HeroSelect.Hero.Scout:
-                coolDown = 15;
                 showIcon("DashIcon");
                 break;
 
             case HeroSelect.Hero.Tanya:
-                coolDown = 15;
                 showIcon("MegaBombIcon");
                 break;
 
             case HeroSelect.Hero.Mediv:
-                coolDown = 20;
                 showIcon("ProtectIcon");
                 break;
         }
@@ -95,7 +92,7 @@ public class SkillVisualization : MonoBehaviour
     private IEnumerator CountdownRoutine()
     {
         isCoolingDown = true;
-        int remainingTime = coolDown;
+        float remainingTime = coolDown;
 
         while (remainingTime > 0)
         {

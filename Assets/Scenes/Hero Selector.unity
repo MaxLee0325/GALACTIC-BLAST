@@ -1683,7 +1683,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls: []
   m_text: "- Health: 5 hearts \n- Speed: 120% (multiply speed by 1.2)\n- Ability:
-    Speed Dash - Press E for +50% speed boost, 3 sec duration, 15 sec cooldown\n"
+    Speed Dash, press E to dash for a short distance, 8 sec cooldown\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
   m_sharedMaterial: {fileID: 2140032, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
@@ -2044,8 +2044,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "- Health: 7 hearts \n- Speed: 85% \n- Ability: Mega Bomb - Press E, next
-    bomb has 2x range, 15 sec cooldown\n"
+  m_text: "- Health: 7 hearts \n- Speed: 85% \n- Ability: Mega Bomb, press E to drop
+    a Mega Bomb with 2x range, 8 sec cooldown\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
   m_sharedMaterial: {fileID: 2140032, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
@@ -2437,8 +2437,8 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "- Health: 5 hearts \n- Speed: 100% \n- Ability: Shield - Press E for invincibility,
-    3 sec duration, 20 sec cooldown\n"
+  m_text: "- Health: 5 hearts \n- Speed: 100% \n- Ability: Shield - press E for invincibility,
+    3 sec duration, 8 sec cooldown\n"
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
   m_sharedMaterial: {fileID: 2140032, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}

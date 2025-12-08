@@ -327,18 +327,6 @@ public class BombController : MonoBehaviour
                 // }
             }
 
-            // Fallback (for CharacterController-only players without a Collider):
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player)
-            {
-                float dist = Vector3.Distance(transform.position, player.transform.position);
-                if (dist <= blastRange)
-                {
-                    var hearts = player.GetComponent<PlayerHearts>();
-                    if (hearts) hearts.TakeDamage(damage);
-                }
-            }
-
             // Create explosion beam
             if (blastBeamPrefab != null)
             {
