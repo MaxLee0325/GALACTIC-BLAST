@@ -235,7 +235,7 @@ MonoBehaviour:
   electricBombPrefab: {fileID: 8635046506631140853, guid: 2fd67b2d23682413a81f9df112c82f96, type: 3}
   fireBombPrefab: {fileID: 7566855611760570968, guid: 3aa6075cb2d3e4edd851ce70b10139bf, type: 3}
   waterBombPrefab: {fileID: 4263124922590087620, guid: e11fd8b17d4804679b6e617003a6e672, type: 3}
-  bombCooldown: 0.75
+  bombCooldown: 0.3
   spawnForward: 0.6
   isScout: 0
   isMediv: 0
