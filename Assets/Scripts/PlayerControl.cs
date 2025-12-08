@@ -24,8 +24,15 @@ public class PlayerControl : MonoBehaviour
     private int maxRangePowerUp = 6;
     private int rangePowerUpLevel = 0;
     private float rangePerLevel = 1f;
+
+        // NEW: Bomb limit system
+    private int maxBombsAllowed = 2;  // Start with only 1 bomb
+    private int currentActiveBombs = 0;  // Track active bombs
     private int maxBombPowerUp = 6;
+
+
     private int countBombPowerUp = 0;
+
     public bool isScout = false;
     public bool isMediv = false;
     public bool isTanya = false;
@@ -34,6 +41,7 @@ public class PlayerControl : MonoBehaviour
     private GameObject dashingSmoke;
     public GameObject protectionShield;
     public GameObject implosionPrefab;
+
     [SerializeField] private SkillVisualization skillVisualization;
     [SerializeField] private PlayerHearts playerHearts;
 
@@ -78,6 +86,51 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
+            // --- CHEATS ---
+    if (Input.GetKeyDown(KeyCode.Alpha1))
+    {
+        // +1 bomb count
+        if (maxBombsAllowed < maxBombPowerUp)
+        {
+            maxBombsAllowed += 1;
+            countBombPowerUp += 1;
+            Debug.Log($"[CHEAT] Max bombs increased to {maxBombsAllowed}");
+        }
+    }
+
+    if (Input.GetKeyDown(KeyCode.Alpha2))
+    {
+        // +1 bomb range
+        if (rangePowerUpLevel < maxRangePowerUp)
+        {
+            rangePowerUpLevel++;
+            Debug.Log($"[CHEAT] Bomb range level = {rangePowerUpLevel}");
+        }
+    }
+
+    if (Input.GetKeyDown(KeyCode.Alpha3))
+    {
+        // +1 heart
+        if (playerHearts != null)
+        {
+            playerHearts.PickupHeart();
+            Debug.Log("[CHEAT] +1 heart");
+        }
+    }
+
+    if (Input.GetKeyDown(KeyCode.Alpha4))
+    {
+        // +1 speed
+        if (countSpeedPowerUp < maxSpeedPowerUp)
+        {
+            speed += powerUpSpeed;
+            originalSpeed += powerUpSpeed;
+            countSpeedPowerUp += 1;
+            Debug.Log($"[CHEAT] Speed increased. New speed = {speed}");
+        }
+    }
+    // --- END CHEATS ---
+
         Vector3 direction = Vector3.zero;
 
         // Hero skills
@@ -100,6 +153,13 @@ public class PlayerControl : MonoBehaviour
             }
         }
 
+          // NEW: Bomb type switching with 'O' key
+        if (Input.GetKeyDown(KeyCode.O))
+        {
+            CycleBombType();
+        }
+
+
         // Movement input
         if (Input.GetKey(KeyCode.UpArrow))
             direction += Vector3.forward;
@@ -121,6 +181,34 @@ public class PlayerControl : MonoBehaviour
         if (Input.GetKeyDown(KeyCode.Space))
             DropBomb();
     }
+
+
+    // NEW: Cycle through bomb types
+    private void CycleBombType()
+    {
+        // Cycle: Normal → Fire → Water → Electric → Normal
+        switch (currentBombType)
+        {
+            case BombType.Normal:
+                currentBombType = BombType.Fire;
+                Debug.Log("Switched to Fire Bomb");
+                break;
+            case BombType.Fire:
+                currentBombType = BombType.Water;
+                Debug.Log("Switched to Water Bomb");
+                break;
+            case BombType.Water:
+                currentBombType = BombType.Electric;
+                Debug.Log("Switched to Electric Bomb");
+                break;
+            case BombType.Electric:
+                currentBombType = BombType.Normal;
+                Debug.Log("Switched to Normal Bomb");
+                break;
+        }
+    }
+
+
 
     private void OnTriggerEnter(Collider other)
     {
@@ -173,13 +261,18 @@ public class PlayerControl : MonoBehaviour
                 PlayMaxPowerUpAudio();
             Destroy(other.gameObject);
         }
-        // Bomb count
+        // NEW: Bomb count power-up
         if (other.CompareTag("PowerUp_Bomb"))
         {
-            if (countBombPowerUp < maxBombPowerUp)
-                countBombPowerUp += 1;
+            if (maxBombsAllowed < maxBombPowerUp)
+            {
+                maxBombsAllowed += 1;
+                Debug.Log($"Max bombs increased to {maxBombsAllowed}!");
+            }
             else
+            {
                 PlayMaxPowerUpAudio();
+            }
             Destroy(other.gameObject);
         }
     }
@@ -213,14 +306,26 @@ public class PlayerControl : MonoBehaviour
 
     void DropBomb(bool megaBomb = false)
     {
+        // Check cooldown
         if (!(Time.time - _lastBombTime >= bombCooldown)) return;
+        
+        // NEW: Check bomb limit
+        if (currentActiveBombs >= maxBombsAllowed)
+        {
+            Debug.Log($"Cannot place more bombs! ({currentActiveBombs}/{maxBombsAllowed} active)");
+            return;
+        }
+        
         _lastBombTime = Time.time;
+        
         Vector3 spawnPos = new Vector3(
             Mathf.Round(transform.position.x),
             transform.position.y + 0.5f,
             Mathf.Round(transform.position.z)
         );
         Quaternion spawnRot = Quaternion.identity;
+        
+        // Select bomb prefab based on current type
         GameObject selectedPrefab = null;
         switch (currentBombType)
         {
@@ -229,23 +334,43 @@ public class PlayerControl : MonoBehaviour
             case BombType.Fire: selectedPrefab = fireBombPrefab; break;
             case BombType.Water: selectedPrefab = waterBombPrefab; break;
         }
+        
         if (selectedPrefab == null) return;
-        for (int i = 0; i < 1 + countBombPowerUp; i++)
+        
+        // Place the bomb
+        GameObject bombInstance = Instantiate(selectedPrefab, spawnPos, spawnRot);
+        BombController bc = bombInstance.GetComponent<BombController>();
+        
+        if (bc != null)
         {
-            GameObject bombInstance = Instantiate(selectedPrefab, spawnPos, spawnRot);
-            BombController bc = bombInstance.GetComponent<BombController>();
-            if (bc != null)
+            bc.blastRange += rangePowerUpLevel * rangePerLevel;
+            
+            if (megaBomb)
             {
-                bc.blastRange += rangePowerUpLevel * rangePerLevel;
-                if (megaBomb)
-                {
-                    GameObject implosion = Instantiate(implosionPrefab, spawnPos, spawnRot);
-                    bombInstance.transform.localScale *= 1.3f;
-                    Destroy(implosion, 4f);
-                    bc.blastRange *= 2;
-                }
+                GameObject implosion = Instantiate(implosionPrefab, spawnPos, spawnRot);
+                bombInstance.transform.localScale *= 1.3f;
+                Destroy(implosion, 4f);
+                bc.blastRange *= 2;
             }
         }
+        
+        // NEW: Track this bomb
+        currentActiveBombs++;
+        StartCoroutine(TrackBombDestruction(bombInstance));
+    }
+
+    // NEW: Track when bomb is destroyed to decrement counter
+    private IEnumerator TrackBombDestruction(GameObject bomb)
+    {
+        // Wait until bomb is destroyed
+        while (bomb != null)
+        {
+            yield return null;
+        }
+        
+        // Bomb destroyed, decrement counter
+        currentActiveBombs--;
+        Debug.Log($"Bomb destroyed. Active bombs: {currentActiveBombs}/{maxBombsAllowed}");
     }
 
     private IEnumerator MedicvProtect()
@@ -294,5 +419,16 @@ public class PlayerControl : MonoBehaviour
         {
             maxPowerUpAudio.Play();
         }
+    }
+     // NEW: Public method to get current bomb type (for UI display)
+    public string GetCurrentBombType()
+    {
+        return currentBombType.ToString();
+    }
+
+    // NEW: Public method to get bomb count info (for UI display)
+    public string GetBombCountInfo()
+    {
+        return $"{currentActiveBombs}/{maxBombsAllowed}";
     }
 }

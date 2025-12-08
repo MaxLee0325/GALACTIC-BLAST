@@ -9,24 +9,104 @@ public class ElectrifiedWaterGround : MonoBehaviour
     public float damageInterval = 1f;
     public int damageAmount = 1;
     public float lifeTime = 4f;
+    
+    [Header("Detection Settings")]
+    public float detectionRadius = 0.5f;  
 
-    public GameObject stunEffectPrefab;   // 🔥 assign in Inspector
+    public GameObject stunEffectPrefab;
 
     // Track players and their original speed
     private Dictionary<PlayerControl, float> playersInside = new Dictionary<PlayerControl, float>();
     private Dictionary<PlayerHearts, PlayerHearts> playerHearts = new Dictionary<PlayerHearts, PlayerHearts>();
-
-    //TODO: wait for enemy implementation
-    // private Dictionary<Enemy, float> enemiesInside = new Dictionary<Enemy, float>();
+    private HashSet<PlayerControl> currentlyStunned = new HashSet<PlayerControl>();
 
     private Coroutine damageCoroutine;
 
     void Start()
     {
         Destroy(gameObject, lifeTime);
-
-        // Start the damage loop immediately
         damageCoroutine = StartCoroutine(DamageLoop());
+        
+        Debug.Log($"ElectrifiedWater created at {transform.position} with radius {detectionRadius}");
+    }
+
+    // Continuous detection using sphere overlap
+    private void Update()
+    {
+        // Check for players within detection radius
+        Collider[] nearbyColliders = Physics.OverlapSphere(transform.position, detectionRadius);
+        
+        // Track who should be in the area
+        HashSet<PlayerControl> playersInRange = new HashSet<PlayerControl>();
+        HashSet<PlayerHearts> heartsInRange = new HashSet<PlayerHearts>();
+        
+        foreach (var col in nearbyColliders)
+        {
+            if (col.CompareTag("Player"))
+            {
+                PlayerControl pc = col.GetComponent<PlayerControl>();
+                PlayerHearts ph = col.GetComponent<PlayerHearts>();
+                
+                if (pc != null)
+                {
+                    playersInRange.Add(pc);
+                    
+                    // Player entered electric field
+                    if (!playersInside.ContainsKey(pc))
+                    {
+                        Debug.Log($"Player entered electrified water at {transform.position}");
+                        playersInside.Add(pc, pc.speed);
+                        
+                        if (!currentlyStunned.Contains(pc))
+                        {
+                            currentlyStunned.Add(pc);
+                            StartCoroutine(StunPlayer(pc));
+                        }
+                    }
+                }
+                
+                if (ph != null)
+                {
+                    heartsInRange.Add(ph);
+                    if (!playerHearts.ContainsKey(ph))
+                    {
+                        playerHearts[ph] = ph;
+                    }
+                }
+            }
+        }
+        
+        // Remove players who left the area
+        List<PlayerControl> playersToRemove = new List<PlayerControl>();
+        foreach (var kvp in playersInside)
+        {
+            if (kvp.Key != null && !playersInRange.Contains(kvp.Key))
+            {
+                Debug.Log($"Player left electrified water at {transform.position}");
+                kvp.Key.speed = kvp.Value;  // Restore speed
+                playersToRemove.Add(kvp.Key);
+                currentlyStunned.Remove(kvp.Key);
+            }
+        }
+        
+        List<PlayerHearts> heartsToRemove = new List<PlayerHearts>();
+        foreach (var kvp in playerHearts)
+        {
+            if (kvp.Key != null && !heartsInRange.Contains(kvp.Key))
+            {
+                heartsToRemove.Add(kvp.Key);
+            }
+        }
+        
+        // Clean up
+        foreach (var pc in playersToRemove)
+        {
+            playersInside.Remove(pc);
+        }
+        foreach (var ph in heartsToRemove)
+        {
+            playerHearts.Remove(ph);
+        }
     }
 
     private void OnTriggerEnter(Collider other)
@@ -38,23 +118,17 @@ public class ElectrifiedWaterGround : MonoBehaviour
 
             if (pc != null && !playersInside.ContainsKey(pc))
             {
+                Debug.Log($"Player triggered electrified water at {transform.position}");
                 playersInside.Add(pc, pc.speed);
-                playerHearts[ph] = ph;
+                if (ph != null) playerHearts[ph] = ph;
 
-                StartCoroutine(StunPlayer(pc));
+                if (!currentlyStunned.Contains(pc))
+                {
+                    currentlyStunned.Add(pc);
+                    StartCoroutine(StunPlayer(pc));
+                }
             }
         }
-
-        //TODO: wait for enemy implementation
-        // if (other.CompareTag("Enemy"))
-        // {
-        //     Enemy e = other.GetComponent<Enemy>();
-        //     if (e != null && !enemiesInside.ContainsKey(e))
-        //     {
-        //         enemiesInside.Add(e, e.speed);
-        //         StartCoroutine(StunEnemy(e));
-        //     }
-        // }
     }
 
     private void OnTriggerExit(Collider other)
@@ -66,8 +140,10 @@ public class ElectrifiedWaterGround : MonoBehaviour
 
             if (pc != null && playersInside.ContainsKey(pc))
             {
-                pc.speed = playersInside[pc]; // restore speed just in case
+                Debug.Log($"Player exited electrified water at {transform.position}");
+                pc.speed = playersInside[pc];
                 playersInside.Remove(pc);
+                currentlyStunned.Remove(pc);
             }
 
             if (ph != null && playerHearts.ContainsKey(ph))
@@ -75,21 +151,12 @@ public class ElectrifiedWaterGround : MonoBehaviour
                 playerHearts.Remove(ph);
             }
         }
-
-        //TODO: wait for enemy implementation
-        // if (other.CompareTag("Enemy"))
-        // {
-        //     Enemy e = other.GetComponent<Enemy>();
-        //     if (e != null && enemiesInside.ContainsKey(e))
-        //     {
-        //         e.speed = enemiesInside[e];
-        //         enemiesInside.Remove(e);
-        //     }
-        // }
     }
 
     IEnumerator StunPlayer(PlayerControl pc)
     {
+        Debug.Log($"Stunning player for {stunDuration} seconds");
+        
         if (stunEffectPrefab)
         {
             GameObject effect = Instantiate(
@@ -104,30 +171,32 @@ public class ElectrifiedWaterGround : MonoBehaviour
 
         float originalSpeed = pc.speed;
         pc.speed = 0f;
+        
         yield return new WaitForSeconds(stunDuration);
+        
         // Restore only if still inside electrified water
         if (playersInside.ContainsKey(pc))
+        {
             pc.speed = originalSpeed;
+        }
+        
+        currentlyStunned.Remove(pc);
     }
 
     IEnumerator DamageLoop()
     {
         while (true)
         {
+            yield return new WaitForSeconds(damageInterval);
+            
             foreach (var kvp in playerHearts)
             {
                 if (kvp.Key != null)
+                {
                     kvp.Key.TakeDamage(damageAmount);
+                    Debug.Log($"Electric damage dealt to player");
+                }
             }
-
-            //TODO: wait for enemy implementation
-            // foreach (var kvp in enemiesInside)
-            // {
-            //     if (kvp.Key != null)
-            //         kvp.Key.TakeDamage(damageAmount);
-            // }
-
-            yield return new WaitForSeconds(damageInterval);
         }
     }
 
@@ -137,19 +206,21 @@ public class ElectrifiedWaterGround : MonoBehaviour
         foreach (var kvp in playersInside)
         {
             if (kvp.Key != null)
+            {
                 kvp.Key.speed = kvp.Value;
-            Debug.Log(kvp.Value);
+                Debug.Log($"Restored speed to {kvp.Value}");
+            }
         }
 
         playersInside.Clear();
         playerHearts.Clear();
-
-        //TODO: wait for enemy implementation
-        // foreach (var kvp in enemiesInside)
-        // {
-        //     if (kvp.Key != null)
-        //         kvp.Key.speed = kvp.Value;
-        // }
-        // enemiesInside.Clear();
+        currentlyStunned.Clear();
+    }
+    
+    // Visual debug in editor
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.yellow;
+        Gizmos.DrawWireSphere(transform.position, detectionRadius);
     }
 }
