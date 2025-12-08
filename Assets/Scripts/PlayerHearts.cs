@@ -30,6 +30,10 @@ public class PlayerHearts : MonoBehaviour
 
     [SerializeField] private PlayerControl playerControl;
 
+    [SerializeField] 
+    public AudioSource hurtAudio;
+    public AudioSource healAudio;
+    
     void Awake()
     {
         // Example: Tanya has 7 hearts
@@ -72,17 +76,14 @@ public class PlayerHearts : MonoBehaviour
         if (currentHearts <= 0) return;
 
         currentHearts = Mathf.Max(0, currentHearts - Mathf.Abs(amount));
+        hurtAudio.Play();
         RefreshUI();
 
         if (currentHearts <= 0)
         {
-            Debug.Log("Player died (hearts reached zero).");
-            if (youLostPanel != null)
-            {
-                youLostPanel.SetActive(true);
-                GameManager.Instance.SetGameState(GameManager.GameState.Lost);
-                Time.timeScale = 0;
-            }
+            youLostPanel.SetActive(true);
+            GameManager.Instance.SetGameState(GameManager.GameState.Lost);
+            Time.timeScale = 0;
         }
     }
 
@@ -90,6 +91,7 @@ public class PlayerHearts : MonoBehaviour
     {
         if (currentHearts >= maxHearts) return;
         currentHearts = Mathf.Min(maxHearts, currentHearts + Mathf.Abs(amount));
+        healAudio.Play();
         RefreshUI();
     }
 

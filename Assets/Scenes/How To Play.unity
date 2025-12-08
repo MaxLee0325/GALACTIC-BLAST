@@ -887,10 +887,11 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "Gameplay\n\n\u2022 Move using WASD to navigate the station\u2019s grid-based
-    rooms.\n\n\u2022 Drop bombs to destroy obstacles and defeat enemies.\n\n\u2022
-    Clear all infected threats in each sector.\n\n\u2022 Reach the exit door to advance,
-    and prepare for the final battle against the Alpha Spore."
+  m_text: "Gameplay\n\n\u2022 Use Direction Arrow Buttons to navigate the station\u2019s
+    grid-based rooms.\n\n\u2022 Press Space to drop bombs to destroy obstacles and
+    defeat enemies.\n\n\u2022 Clear all infected threats in each sector.\n\n\u2022
+    Reach the exit door to advance, and prepare for the final battle against the
+    Alpha Spore."
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}
   m_sharedMaterial: {fileID: 2140032, guid: dc36b3fdc14f47ebb36fd484a67e268a, type: 2}

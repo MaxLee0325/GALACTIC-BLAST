@@ -497,30 +497,6 @@ public class BombController : MonoBehaviour
                 }
             }
 
-            // Fallback for CharacterController-only players (WITH WALL CHECK)
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player)
-            {
-                Vector3 directionToPlayer = (player.transform.position - transform.position).normalized;
-                float distToPlayer = Vector3.Distance(transform.position, player.transform.position);
-                
-                // Only damage if player is within range AND in the same direction as this blast beam
-                bool playerInThisDirection = Vector3.Dot(directionToPlayer, dir) > 0.8f;
-                
-                if (distToPlayer <= blastRange && playerInThisDirection)
-                {
-                    // Check if there's a wall between bomb and player
-                    RaycastHit wallCheck;
-                    bool wallBlocking = Physics.Raycast(transform.position, directionToPlayer, out wallCheck, distToPlayer);
-                    
-                    if (!wallBlocking || !wallCheck.collider.CompareTag("Wall"))
-                    {
-                        var hearts = player.GetComponent<PlayerHearts>();
-                        if (hearts) hearts.TakeDamage(damage);
-                    }
-                }
-            }
-
             // Create explosion beam
             if (blastBeamPrefab != null)
             {
