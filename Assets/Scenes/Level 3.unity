@@ -32884,6 +32884,10 @@ PrefabInstance:
       propertyPath: heartsParent
       value: 
       objectReference: {fileID: 842108310}
+    - target: {fileID: 5693348508749694600, guid: bd0a4e3d0ef8a4d7b930667fbeb0da20, type: 3}
+      propertyPath: youLostPanel
+      value: 
+      objectReference: {fileID: 570695297}
     - target: {fileID: 5997787666993005668, guid: bd0a4e3d0ef8a4d7b930667fbeb0da20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11
@@ -33467,7 +33471,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1607608000
 Transform:
   m_ObjectHideFlags: 0
@@ -35387,7 +35391,7 @@ Transform:
   m_GameObject: {fileID: 1711266640}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 11, y: 0, z: 7}
+  m_LocalPosition: {x: 11, y: -0.4, z: 7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -40122,7 +40126,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8100048317310301998, guid: e80b398e0570d4bb0b617825788ee857, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: 8.196747
+      value: 8.196777
       objectReference: {fileID: 0}
     - target: {fileID: 8100048317310301998, guid: e80b398e0570d4bb0b617825788ee857, type: 3}
       propertyPath: m_AnchoredPosition.y
