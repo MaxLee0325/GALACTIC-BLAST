@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 3146605054432943760}
   - component: {fileID: 1603295696358609653}
   - component: {fileID: 1147784321314371761}
+  - component: {fileID: 3909677602406511061}
   m_Layer: 0
   m_Name: Destructible (1)
   m_TagString: Destructible
@@ -111,3 +112,24 @@ BoxCollider:
   serializedVersion: 3
   m_Size: {x: 1.65, y: 1.65, z: 1.35}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &3909677602406511061
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6737603176246505466}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f00ad03768819914483051f28f4f0cdf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::PowerUpSpawner
+  dropChance: 0.7
+  powerUpPrefabs:
+  - {fileID: 2502342482905899004, guid: fa0b86beae77fda428dd1208a8198189, type: 3}
+  - {fileID: 1032347572759629723, guid: 488ab37afbeb42340a602a550952f85d, type: 3}
+  - {fileID: 454568190784444160, guid: b0f4f2ab225fb434ea80a4485f0b73ba, type: 3}
+  - {fileID: 2493514425465792422, guid: 38cf3c5ee46d34a4f9bf641f305eb35c, type: 3}
+  - {fileID: 3219652770542481459, guid: 4f7bc920dee3a474ab48dc69df65df53, type: 3}
+  - {fileID: 7472991671224402340, guid: 8e7cdf595c99f7b498536990a5efa143, type: 3}
+  - {fileID: 4775127825228272712, guid: e3f9f73c2ff87314cb4f48f88c7c5fb9, type: 3}
