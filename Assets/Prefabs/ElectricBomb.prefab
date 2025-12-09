@@ -351,7 +351,7 @@ SphereCollider:
   m_LayerOverridePriority: 0
   m_IsTrigger: 0
   m_ProvidesContacts: 0
-  m_Enabled: 1
+  m_Enabled: 0
   serializedVersion: 3
   m_Radius: 0.5
   m_Center: {x: 0, y: 0, z: 0}
@@ -435,10 +435,23 @@ MonoBehaviour:
   previewStartWidth: 0.15
   previewEndWidth: 0.15
   explosionAudio: {fileID: 7615641104206096621}
+  bombPlacementSound: {fileID: 0}
+  bombTickingSound: {fileID: 0}
+  fireExplosionSound: {fileID: 0}
+  waterExplosionSound: {fileID: 0}
+  electricExplosionSound: {fileID: 0}
+  chainReactionSound: {fileID: 0}
   PreviewBeamPrefab: {fileID: 2323542525816555161, guid: 2f28f3dab37a24b18b1e0f34e01b6675, type: 3}
   burningGroundPrefab: {fileID: 4348720600352822355, guid: 65d062a9ede124532b6084e2edb1a180, type: 3}
   wetGroundPrefab: {fileID: 3485697704042555446, guid: 42952db2cb6464dcd903e51ca4d39ba5, type: 3}
   ElectrifiedWaterGroundPrefab: {fileID: 7823413944371803716, guid: 2f5e288d96314488e80b0c1065900c71, type: 3}
+  burningGroundLoopSound: {fileID: 0}
+  wetGroundLoopSound: {fileID: 0}
+  electricFieldLoopSound: {fileID: 0}
+  damage: 1
+  explosionPrefab: {fileID: 7834434380170384362, guid: 68101499d07aced4aa0ded4acb624942, type: 3}
+  firePrefab: {fileID: 0}
+  electricPrefab: {fileID: 3958596659431381315, guid: c50f9e2c685970e4c8ebcd5fc8c7b3e4, type: 3}
 --- !u!198 &3950747207887711578
 ParticleSystem:
   m_ObjectHideFlags: 0

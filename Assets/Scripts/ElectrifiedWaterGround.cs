@@ -10,22 +10,19 @@ public class ElectrifiedWaterGround : MonoBehaviour
     public int damageAmount = 1;
     public float lifeTime = 4f;
 
-    public GameObject stunEffectPrefab;   // 🔥 assign in Inspector
+    [Header("Detection Settings")]
+    public float detectionRadius = 0.5f;
+    public GameObject stunEffectPrefab;
 
     // Track players and their original speed
     private Dictionary<PlayerControl, float> playersInside = new Dictionary<PlayerControl, float>();
     private Dictionary<PlayerHearts, PlayerHearts> playerHearts = new Dictionary<PlayerHearts, PlayerHearts>();
-
-    //TODO: wait for enemy implementation
-    // private Dictionary<Enemy, float> enemiesInside = new Dictionary<Enemy, float>();
-
+    private HashSet<PlayerControl> currentlyStunned = new HashSet<PlayerControl>();
     private Coroutine damageCoroutine;
 
     void Start()
     {
         Destroy(gameObject, lifeTime);
-
-        // Start the damage loop immediately
         damageCoroutine = StartCoroutine(DamageLoop());
     }
 
@@ -35,26 +32,18 @@ public class ElectrifiedWaterGround : MonoBehaviour
         {
             PlayerControl pc = other.GetComponent<PlayerControl>();
             PlayerHearts ph = other.GetComponent<PlayerHearts>();
-
             if (pc != null && !playersInside.ContainsKey(pc))
             {
-                playersInside.Add(pc, pc.moveSpeed);
-                playerHearts[ph] = ph;
-
-                StartCoroutine(StunPlayer(pc));
+                Debug.Log($"Player triggered electrified water at {transform.position}");
+                playersInside.Add(pc, pc.speed);
+                if (ph != null) playerHearts[ph] = ph;
+                if (!currentlyStunned.Contains(pc))
+                {
+                    currentlyStunned.Add(pc);
+                    pc.Stun(stunDuration, stunEffectPrefab); // Player handles their own stun
+                }
             }
         }
-
-        //TODO: wait for enemy implementation
-        // if (other.CompareTag("Enemy"))
-        // {
-        //     Enemy e = other.GetComponent<Enemy>();
-        //     if (e != null && !enemiesInside.ContainsKey(e))
-        //     {
-        //         enemiesInside.Add(e, e.speed);
-        //         StartCoroutine(StunEnemy(e));
-        //     }
-        // }
     }
 
     private void OnTriggerExit(Collider other)
@@ -63,93 +52,41 @@ public class ElectrifiedWaterGround : MonoBehaviour
         {
             PlayerControl pc = other.GetComponent<PlayerControl>();
             PlayerHearts ph = other.GetComponent<PlayerHearts>();
-
             if (pc != null && playersInside.ContainsKey(pc))
             {
-                pc.moveSpeed = playersInside[pc]; // restore speed just in case
+                Debug.Log($"Player exited electrified water at {transform.position}");
                 playersInside.Remove(pc);
+                currentlyStunned.Remove(pc);
             }
-
             if (ph != null && playerHearts.ContainsKey(ph))
             {
                 playerHearts.Remove(ph);
             }
         }
-
-        //TODO: wait for enemy implementation
-        // if (other.CompareTag("Enemy"))
-        // {
-        //     Enemy e = other.GetComponent<Enemy>();
-        //     if (e != null && enemiesInside.ContainsKey(e))
-        //     {
-        //         e.speed = enemiesInside[e];
-        //         enemiesInside.Remove(e);
-        //     }
-        // }
-    }
-
-    IEnumerator StunPlayer(PlayerControl pc)
-    {
-        if (stunEffectPrefab)
-        {
-            GameObject effect = Instantiate(
-                stunEffectPrefab,
-                new Vector3(pc.transform.position.x, pc.transform.position.y + 2f, pc.transform.position.z),
-                Quaternion.identity,
-                pc.transform
-            );
-
-            Destroy(effect, stunDuration);
-        }
-
-        float originalSpeed = pc.moveSpeed;
-        pc.moveSpeed = 0f;
-        yield return new WaitForSeconds(stunDuration);
-        // Restore only if still inside electrified water
-        if (playersInside.ContainsKey(pc))
-            pc.moveSpeed = originalSpeed;
     }
 
     IEnumerator DamageLoop()
     {
         while (true)
         {
+            yield return new WaitForSeconds(damageInterval);
+
             foreach (var kvp in playerHearts)
             {
                 if (kvp.Key != null)
+                {
                     kvp.Key.TakeDamage(damageAmount);
+                    Debug.Log($"Electric damage dealt to player");
+                }
             }
-
-            //TODO: wait for enemy implementation
-            // foreach (var kvp in enemiesInside)
-            // {
-            //     if (kvp.Key != null)
-            //         kvp.Key.TakeDamage(damageAmount);
-            // }
-
-            yield return new WaitForSeconds(damageInterval);
         }
     }
 
     private void OnDestroy()
     {
-        // Restore player speeds if still stunned
-        foreach (var kvp in playersInside)
-        {
-            if (kvp.Key != null)
-                kvp.Key.speed = kvp.Value;
-            Debug.Log(kvp.Value);
-        }
-
+        // Clean up dictionaries
         playersInside.Clear();
         playerHearts.Clear();
-
-        //TODO: wait for enemy implementation
-        // foreach (var kvp in enemiesInside)
-        // {
-        //     if (kvp.Key != null)
-        //         kvp.Key.speed = kvp.Value;
-        // }
-        // enemiesInside.Clear();
+        currentlyStunned.Clear();
     }
 }

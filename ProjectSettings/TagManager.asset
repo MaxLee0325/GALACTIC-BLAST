@@ -24,10 +24,6 @@ TagManager:
   - PowerUp_Bomb
   - PowerUp_Speed
   - PowerUp_Range
-  - Goal
-  - WaterEnemy
-  - ElectricEnemy
-  - FireEnemy
   layers:
   - Default
   - TransparentFX
@@ -35,8 +31,8 @@ TagManager:
   - 
   - Water
   - UI
-  - Player
-  - obstaclce
+  - 
+  - 
   - 
   - 
   - 
