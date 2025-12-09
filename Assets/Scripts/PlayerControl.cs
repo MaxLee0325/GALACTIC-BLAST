@@ -9,15 +9,22 @@ public class PlayerControl : MonoBehaviour
     public float originalSpeed;
     public float moveAmount = 1f;
     public bool isSlowed = false;
+    
+    // Bomb prefabs
     public GameObject bombPrefab;
     public GameObject electricBombPrefab;
     public GameObject fireBombPrefab;
     public GameObject waterBombPrefab;
+
     public float bombCooldown = 0.5f;
     public float spawnForward = 0.6f;
     private float _lastBombTime = -999f;
+
+    // Bomb type switching
     private enum BombType { Normal, Electric, Fire, Water }
     private BombType currentBombType = BombType.Normal;
+
+    // Power-up limits
     private int maxSpeedPowerUp = 5;
     private int countSpeedPowerUp = 0;
     private float powerUpSpeed = 0.5f;
@@ -25,15 +32,16 @@ public class PlayerControl : MonoBehaviour
     private int rangePowerUpLevel = 0;
     private float rangePerLevel = 1f;
 
-    // NEW: Bomb limit system
-    private int maxBombsAllowed = 2;  // Start with only 1 bomb
-    private int currentActiveBombs = 0;  // Track active bombs
+    // Bomb placement limits
+    private int maxBombsAllowed = 2; 
+    private int currentActiveBombs = 0;
     private int maxBombPowerUp = 6;
 
-
+    // Hero ability flags
     public bool isScout = false;
     public bool isMediv = false;
     public bool isTanya = false;
+
     public bool inCoolDown = false;
     private float skillCoolDown = 8f;
     private GameObject dashingSmoke;
@@ -60,6 +68,7 @@ public class PlayerControl : MonoBehaviour
         LoadHero();
     }
 
+    //Function apply stats and find hero-specific VFX
     private void LoadHero()
     {
         switch (HeroSelect.SelectedHero)
@@ -83,7 +92,7 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
-        // --- CHEATS ---
+        //Cheat shortcuts
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
             maxBombsAllowed += 1;
@@ -121,7 +130,6 @@ public class PlayerControl : MonoBehaviour
                 Debug.Log($"[CHEAT] Speed increased. New speed = {speed}");
             }
         }
-        // --- END CHEATS ---
 
         Vector3 direction = Vector3.zero;
 
@@ -145,13 +153,15 @@ public class PlayerControl : MonoBehaviour
             }
         }
 
-          // NEW: Bomb type switching with 'O' key
+        // Cheat bomb switching with o
         if (Input.GetKeyDown(KeyCode.O))
         {
             CycleBombType();
         }
 
-
+        if (Time.timeScale == 0f)
+            return;
+        
         // Movement input
         if (Input.GetKey(KeyCode.UpArrow))
             direction += Vector3.forward;
@@ -161,8 +171,6 @@ public class PlayerControl : MonoBehaviour
             direction += Vector3.left;
         if (Input.GetKey(KeyCode.RightArrow))
             direction += Vector3.right;
-
-        // Normalize direction for diagonal movement
         if (direction != Vector3.zero)
             direction.Normalize();
 
@@ -175,10 +183,9 @@ public class PlayerControl : MonoBehaviour
     }
 
 
-    // NEW: Cycle through bomb types
+    // function cycles through bomb types
     private void CycleBombType()
     {
-        // Cycle: Normal → Fire → Water → Electric → Normal
         switch (currentBombType)
         {
             case BombType.Normal:
@@ -200,6 +207,7 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
+    // Power-up pickups and collisions
     private void OnTriggerEnter(Collider other)
     {
         // Water power-up
@@ -258,7 +266,7 @@ public class PlayerControl : MonoBehaviour
                 maxPowerUpAudio.Play();
             Destroy(other.gameObject);
         }
-        // NEW: Bomb count power-up
+        //Bomb count
         if (other.CompareTag("PowerUp_Bomb"))
         {
             if (maxBombsAllowed < maxBombPowerUp)
@@ -272,6 +280,7 @@ public class PlayerControl : MonoBehaviour
         }
     }
 
+    //Movement Logic
     void Move(Vector3 direction)
     {
         if (direction == Vector3.zero)
@@ -281,13 +290,8 @@ public class PlayerControl : MonoBehaviour
             return;
         }
 
-        // Rotate player
         RotateToDirection(direction);
-
-        // Move player
         rb.linearVelocity = direction * speed;
-
-        // Play walking animation
         anim.Play();
     }
 
@@ -409,13 +413,13 @@ public class PlayerControl : MonoBehaviour
         inCoolDown = false;
     }
 
-     // NEW: Public method to get current bomb type (for UI display)
+     //Public method to get current bomb type (for UI display)
     public string GetCurrentBombType()
     {
         return currentBombType.ToString();
     }
 
-    // NEW: Public method to get bomb count info (for UI display)
+    //Public method to get bomb count info (for UI display)
     public string GetBombCountInfo()
     {
         return $"{currentActiveBombs}/{maxBombsAllowed}";

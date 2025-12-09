@@ -8,13 +8,13 @@ public class PlayerHearts : MonoBehaviour
     private int currentHearts = 5;
 
     [Header("UI Prefab & Parent")]
-    public GameObject heartPrefab; // prefab with Image component
-    public Transform heartsParent; // panel or empty object to hold hearts
-    public Sprite fullHeart;       // sprite for filled heart
-    public Sprite emptyHeart;      // sprite for empty heart
+    public GameObject heartPrefab; 
+    public Transform heartsParent; 
+    public Sprite fullHeart;       
+    public Sprite emptyHeart;      
 
     [Header("Optional")]
-    public bool clampToMaxList = true; // unused now, kept for compatibility
+    public bool clampToMaxList = true; 
 
     [Header("Damage")]
     public float damageCooldown = 0.4f;
@@ -33,10 +33,11 @@ public class PlayerHearts : MonoBehaviour
     [SerializeField] 
     public AudioSource hurtAudio;
     public AudioSource healAudio;
-    
+
+    //Initializes hearts and adjusts for Tanya hero
     void Awake()
     {
-        // Example: Tanya has 7 hearts
+        // Tanya has 7 hearts
         if(HeroSelect.SelectedHero == HeroSelect.Hero.Tanya)
         {
             maxHearts = 7;
@@ -45,11 +46,11 @@ public class PlayerHearts : MonoBehaviour
 
         currentHearts = Mathf.Clamp(currentHearts, 0, maxHearts);
 
-        // Generate hearts dynamically
         GenerateHearts();
         RefreshUI();
     }
 
+    //Handles invincibility timer expiration
     void Update()
     {
         if (isInvincible && Time.time >= invincibleEndTime)
@@ -60,14 +61,16 @@ public class PlayerHearts : MonoBehaviour
         } 
     }
 
+    //Makes the player invincible for 3 seconds for medic skill
     public void Protect()
     {
         isInvincible = true;
         playerControl.protectionShield.SetActive(true);
-        invincibleEndTime = Time.time + 3f; // 3 seconds
+        invincibleEndTime = Time.time + 3f;
         Debug.Log("Player is now invincible for 3 seconds!");
     }
 
+    //Reduces hearts, updates UI, triggers lose panel if 0
     public void TakeDamage(int amount = 1)
     {
         if (Time.time - lastHitTime < damageCooldown || isInvincible) return;
@@ -87,6 +90,7 @@ public class PlayerHearts : MonoBehaviour
         }
     }
 
+    //Restores hearts up to maximum and refreshes UI
     public void Heal(int amount = 1)
     {
         if (currentHearts >= maxHearts) return;
@@ -95,12 +99,14 @@ public class PlayerHearts : MonoBehaviour
         RefreshUI();
     }
 
+    //Directly sets the player's heart count
     public void SetHealth(int hearts)
     {
         currentHearts = Mathf.Clamp(hearts, 0, maxHearts);
         RefreshUI();
     }
 
+    //Heals the player if not already full
     public void PickupHeart()
     {
         if (currentHearts < maxHearts)
@@ -109,14 +115,15 @@ public class PlayerHearts : MonoBehaviour
         }
     }
 
+    //Creates UI heart icons dynamically
     private void GenerateHearts()
     {
-        // Clear old hearts if any
+        // Remove old icon
         foreach (Transform child in heartsParent)
             Destroy(child.gameObject);
         heartImages.Clear();
 
-        // Instantiate new hearts
+        // Create new hearts
         for (int i = 0; i < maxHearts; i++)
         {
             GameObject heartGO = Instantiate(heartPrefab, heartsParent);
@@ -126,18 +133,19 @@ public class PlayerHearts : MonoBehaviour
         }
     }
 
+    // Updates each heart icon based on current health
     private void RefreshUI()
     {
         for (int i = 0; i < heartImages.Count; i++)
         {
             if (i < maxHearts - currentHearts)
             {
-                heartImages[i].sprite = emptyHeart; // lost heart
+                heartImages[i].sprite = emptyHeart;
                 heartImages[i].enabled = true;
             }
             else
             {
-                heartImages[i].sprite = fullHeart;  // remaining heart
+                heartImages[i].sprite = fullHeart;
                 heartImages[i].enabled = true;
             }
         }
