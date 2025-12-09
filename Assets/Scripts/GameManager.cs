@@ -25,6 +25,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
+        // Finds the player if not assigned in the inspector
         if (player == null)
         {
             GameObject p = GameObject.FindGameObjectWithTag("Player");
@@ -32,21 +33,24 @@ public class GameManager : MonoBehaviour
                 player = p;
         }
 
+        // Count initial enemies in the scene based on their tag
         GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
         enemyCount = enemies.Length;
     }
 
-    //Function for victor to call
+    //function decrease enemy count but never go below zero
     public void OnEnemyDeath()
     {
         enemyCount = Mathf.Max(0, enemyCount - 1);
     }
 
+    // Returns the current number of active enemies
     public int GetEnemyCount()
     {
         return enemyCount;
     }
 
+    // Allows other scripts to modify the current game state (e.g., Lost, Won, Paused)
     public void SetGameState(GameState newState)
     {
         CurrentState = newState;
