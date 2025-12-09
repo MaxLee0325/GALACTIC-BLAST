@@ -1,3 +1,4 @@
+using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -25,34 +26,28 @@ public class PanelControl : MonoBehaviour
 
     public static Level SelectedLevel { get; private set; }
 
-    void Start()
-    {
-        if (pausePanel != null) pausePanel.SetActive(false);
-        if (pauseButton != null) pauseButton.SetActive(true);
-        Time.timeScale = 1f;
-        isPaused = false;
-    }
-
     public void Pause()
     {
-        if (isPaused) return;
-        isPaused = true;
+       if (pausePanel != null && !pausePanel.activeSelf)
+       {
+           pausePanel.SetActive(true);
+           pauseButton.SetActive(false);
 
-        pausePanel.SetActive(true);
-        pauseButton.SetActive(false);
-
-        Time.timeScale = 0f;
+           Time.timeScale = 0f;
+           GameManager.Instance.SetGameState(GameManager.GameState.Paused);
+       }
     }
 
     public void Resume()
     {
-        if (!isPaused) return;
-        isPaused = false;
+        if (pausePanel != null && pausePanel.activeSelf)
+        {
+            if (pausePanel != null) pausePanel.SetActive(false);
+            if (pauseButton != null) pauseButton.SetActive(true);
 
-        if (pausePanel != null) pausePanel.SetActive(false);
-        if (pauseButton != null) pauseButton.SetActive(true);
-
-        Time.timeScale = 1f;
+            Time.timeScale = 1f;
+            GameManager.Instance.SetGameState(GameManager.GameState.Playing);
+        }
     }
 
     public void Restart()
@@ -69,6 +64,7 @@ public class PanelControl : MonoBehaviour
             Debug.Log("PORTAL TRIGGERED!");
         }
         Time.timeScale = 0;
+        GameManager.Instance.SetGameState(GameManager.GameState.Won);
         Debug.Log("CALLING SHOW PANEL");
         Debug.Log("Panel: " + nextLevelPanel);
 

@@ -13,7 +13,7 @@ public class PlayerControl : MonoBehaviour
     public GameObject electricBombPrefab;
     public GameObject fireBombPrefab;
     public GameObject waterBombPrefab;
-    public float bombCooldown = 20f;
+    public float bombCooldown = 0.5f;
     public float spawnForward = 0.6f;
     private float _lastBombTime = -999f;
     private enum BombType { Normal, Electric, Fire, Water }
@@ -30,7 +30,6 @@ public class PlayerControl : MonoBehaviour
     private int currentActiveBombs = 0;  // Track active bombs
     private int maxBombPowerUp = 6;
 
-    private int countBombPowerUp = 0;
 
     public bool isScout = false;
     public bool isMediv = false;
@@ -87,13 +86,8 @@ public class PlayerControl : MonoBehaviour
         // --- CHEATS ---
         if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            // +1 bomb count
-            if (maxBombsAllowed < maxBombPowerUp)
-            {
-                maxBombsAllowed += 1;
-                countBombPowerUp += 1;
-                Debug.Log($"[CHEAT] Max bombs increased to {maxBombsAllowed}");
-            }
+            maxBombsAllowed += 1;
+            Debug.Log($"[CHEAT] Max bombs increased to {maxBombsAllowed}");
         }
 
         if (Input.GetKeyDown(KeyCode.Alpha2))
@@ -267,9 +261,9 @@ public class PlayerControl : MonoBehaviour
         // NEW: Bomb count power-up
         if (other.CompareTag("PowerUp_Bomb"))
         {
-            if (countBombPowerUp < maxBombPowerUp)
+            if (maxBombsAllowed < maxBombPowerUp)
             {
-                countBombPowerUp += 1;
+                maxBombsAllowed += 1;
                 powerUpAudio.Play();
             }
             else
@@ -309,7 +303,7 @@ public class PlayerControl : MonoBehaviour
     {
         // Check cooldown
         if (!(Time.time - _lastBombTime >= bombCooldown)) return;
-        
+
         // NEW: Check bomb limit
         if (currentActiveBombs >= maxBombsAllowed)
         {
@@ -318,6 +312,7 @@ public class PlayerControl : MonoBehaviour
         }
         
         _lastBombTime = Time.time;
+        
         
         Vector3 spawnPos = new Vector3(
             Mathf.Round(transform.position.x),
