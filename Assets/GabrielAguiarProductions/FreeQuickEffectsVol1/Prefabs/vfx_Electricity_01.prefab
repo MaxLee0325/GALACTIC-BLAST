@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3939764759394070279}
   - component: {fileID: 7373644630128741146}
   - component: {fileID: 2193125836256819593}
+  - component: {fileID: 3340934075171709219}
   m_Layer: 0
   m_Name: vfx_Electricity_01
   m_TagString: Untagged
@@ -4774,6 +4775,11 @@ ParticleSystemRenderer:
   m_ReflectionProbeUsage: 0
   m_RayTracingMode: 0
   m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
@@ -4796,6 +4802,7 @@ ParticleSystemRenderer:
   m_AutoUVMaxDistance: 0.5
   m_AutoUVMaxAngle: 89
   m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
@@ -4831,3 +4838,16 @@ ParticleSystemRenderer:
   m_MeshWeighting2: 1
   m_MeshWeighting3: 1
   m_MaskInteraction: 0
+--- !u!114 &3340934075171709219
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7834434380170384362}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5cde2ba08523a4719803633d7c0df886, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::SelfDestroy
+  liveTime: 0.5

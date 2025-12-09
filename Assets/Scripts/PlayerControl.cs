@@ -25,11 +25,10 @@ public class PlayerControl : MonoBehaviour
     private int rangePowerUpLevel = 0;
     private float rangePerLevel = 1f;
 
-        // NEW: Bomb limit system
+    // NEW: Bomb limit system
     private int maxBombsAllowed = 2;  // Start with only 1 bomb
     private int currentActiveBombs = 0;  // Track active bombs
     private int maxBombPowerUp = 6;
-
 
     private int countBombPowerUp = 0;
 
@@ -85,50 +84,50 @@ public class PlayerControl : MonoBehaviour
 
     void Update()
     {
-            // --- CHEATS ---
-    if (Input.GetKeyDown(KeyCode.Alpha1))
-    {
-        // +1 bomb count
-        if (maxBombsAllowed < maxBombPowerUp)
+        // --- CHEATS ---
+        if (Input.GetKeyDown(KeyCode.Alpha1))
         {
-            maxBombsAllowed += 1;
-            countBombPowerUp += 1;
-            Debug.Log($"[CHEAT] Max bombs increased to {maxBombsAllowed}");
+            // +1 bomb count
+            if (maxBombsAllowed < maxBombPowerUp)
+            {
+                maxBombsAllowed += 1;
+                countBombPowerUp += 1;
+                Debug.Log($"[CHEAT] Max bombs increased to {maxBombsAllowed}");
+            }
         }
-    }
 
-    if (Input.GetKeyDown(KeyCode.Alpha2))
-    {
-        // +1 bomb range
-        if (rangePowerUpLevel < maxRangePowerUp)
+        if (Input.GetKeyDown(KeyCode.Alpha2))
         {
-            rangePowerUpLevel++;
-            Debug.Log($"[CHEAT] Bomb range level = {rangePowerUpLevel}");
+            // +1 bomb range
+            if (rangePowerUpLevel < maxRangePowerUp)
+            {
+                rangePowerUpLevel++;
+                Debug.Log($"[CHEAT] Bomb range level = {rangePowerUpLevel}");
+            }
         }
-    }
 
-    if (Input.GetKeyDown(KeyCode.Alpha3))
-    {
-        // +1 heart
-        if (playerHearts != null)
+        if (Input.GetKeyDown(KeyCode.Alpha3))
         {
-            playerHearts.PickupHeart();
-            Debug.Log("[CHEAT] +1 heart");
+            // +1 heart
+            if (playerHearts != null)
+            {
+                playerHearts.PickupHeart();
+                Debug.Log("[CHEAT] +1 heart");
+            }
         }
-    }
 
-    if (Input.GetKeyDown(KeyCode.Alpha4))
-    {
-        // +1 speed
-        if (countSpeedPowerUp < maxSpeedPowerUp)
+        if (Input.GetKeyDown(KeyCode.Alpha4))
         {
-            speed += powerUpSpeed;
-            originalSpeed += powerUpSpeed;
-            countSpeedPowerUp += 1;
-            Debug.Log($"[CHEAT] Speed increased. New speed = {speed}");
+            // +1 speed
+            if (countSpeedPowerUp < maxSpeedPowerUp)
+            {
+                speed += powerUpSpeed;
+                originalSpeed += powerUpSpeed;
+                countSpeedPowerUp += 1;
+                Debug.Log($"[CHEAT] Speed increased. New speed = {speed}");
+            }
         }
-    }
-    // --- END CHEATS ---
+        // --- END CHEATS ---
 
         Vector3 direction = Vector3.zero;
 
@@ -425,5 +424,32 @@ public class PlayerControl : MonoBehaviour
     public string GetBombCountInfo()
     {
         return $"{currentActiveBombs}/{maxBombsAllowed}";
+    }
+
+    public void Stun(float duration, GameObject stunEffectPrefab)
+    {
+        StartCoroutine(StunCoroutine(duration, stunEffectPrefab));
+    }
+
+    private IEnumerator StunCoroutine(float duration, GameObject stunEffectPrefab)
+    {
+        Debug.Log($"Player stunned for {duration} seconds");
+        speed = 0f;
+
+        if (stunEffectPrefab != null)
+        {
+            GameObject effect = Instantiate(
+                stunEffectPrefab,
+                new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z),
+                Quaternion.identity,
+                transform
+            );
+            Destroy(effect, duration);
+        }
+
+        yield return new WaitForSeconds(duration);
+
+        speed = originalSpeed;
+        Debug.Log("Player stun ended");
     }
 }

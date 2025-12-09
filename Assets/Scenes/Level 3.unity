@@ -32884,6 +32884,10 @@ PrefabInstance:
       propertyPath: heartsParent
       value: 
       objectReference: {fileID: 842108310}
+    - target: {fileID: 5693348508749694600, guid: bd0a4e3d0ef8a4d7b930667fbeb0da20, type: 3}
+      propertyPath: youLostPanel
+      value: 
+      objectReference: {fileID: 570695297}
     - target: {fileID: 5997787666993005668, guid: bd0a4e3d0ef8a4d7b930667fbeb0da20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11

@@ -9055,6 +9055,10 @@ PrefabInstance:
       propertyPath: heartsParent
       value: 
       objectReference: {fileID: 75565959}
+    - target: {fileID: 5693348508749694600, guid: bd0a4e3d0ef8a4d7b930667fbeb0da20, type: 3}
+      propertyPath: youLostPanel
+      value: 
+      objectReference: {fileID: 555646165}
     - target: {fileID: 5997787666993005668, guid: bd0a4e3d0ef8a4d7b930667fbeb0da20, type: 3}
       propertyPath: m_LocalPosition.x
       value: -11
@@ -15914,11 +15918,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 7113095521168705648, guid: c31b5b8f5545644c988d458a24234821, type: 3}
       propertyPath: m_AnchoredPosition.x
-      value: -7.4400024
+      value: -7.4400635
       objectReference: {fileID: 0}
     - target: {fileID: 7113095521168705648, guid: c31b5b8f5545644c988d458a24234821, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -47.63
+      value: -47.630005
       objectReference: {fileID: 0}
     - target: {fileID: 7113095521168705648, guid: c31b5b8f5545644c988d458a24234821, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x

@@ -183,4 +183,4 @@ MonoBehaviour:
   damageAmount: 1
   lifeTime: 4
   detectionRadius: 0.5
-  stunEffectPrefab: {fileID: 4786842357797940214, guid: 418f3226f19ca4b20a43eed392da16e0, type: 3}
+  stunEffectPrefab: {fileID: 6532625474870085665, guid: 07a977963523b3b4dbcaa27119f6b469, type: 3}
