@@ -367,10 +367,10 @@ MonoBehaviour:
   attackRange: 1
   playerLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   obstacleLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   loseMemory: 2
   anim: {fileID: 8806294364683793870}
   explodeDelay: 3

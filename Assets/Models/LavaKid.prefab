@@ -387,10 +387,10 @@ MonoBehaviour:
   attackRange: 3
   playerLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   obstacleLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   loseMemory: 3
   anim: {fileID: 7201818153533085475}
   burningGroundPrefab: {fileID: 4348720600352822355, guid: 65d062a9ede124532b6084e2edb1a180, type: 3}
