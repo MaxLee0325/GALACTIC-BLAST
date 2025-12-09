@@ -716,10 +716,10 @@ MonoBehaviour:
   sonarRange: 2.5
   playerLayer:
     serializedVersion: 2
-    m_Bits: 64
+    m_Bits: 0
   obstacleLayers:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 0
   loseMemory: 5
   anim: {fileID: 8585441996175030848}
   teleportDistance: 3
