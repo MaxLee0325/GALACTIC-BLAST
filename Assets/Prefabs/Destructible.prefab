@@ -13,7 +13,8 @@ GameObject:
   - component: {fileID: 2838794708339408830}
   - component: {fileID: 6602030174705258612}
   - component: {fileID: 6023732506053461178}
-  m_Layer: 0
+  - component: {fileID: 354265191279171423}
+  m_Layer: 7
   m_Name: Destructible
   m_TagString: Destructible
   m_Icon: {fileID: 0}
@@ -133,3 +134,19 @@ MonoBehaviour:
   - {fileID: 2493514425465792422, guid: 38cf3c5ee46d34a4f9bf641f305eb35c, type: 3}
   - {fileID: 3219652770542481459, guid: 4f7bc920dee3a474ab48dc69df65df53, type: 3}
   - {fileID: 7472991671224402340, guid: 8e7cdf595c99f7b498536990a5efa143, type: 3}
+--- !u!208 &354265191279171423
+NavMeshObstacle:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4323511387067331880}
+  m_Enabled: 1
+  serializedVersion: 3
+  m_Shape: 1
+  m_Extents: {x: 0.5, y: 0.5, z: 0.5}
+  m_MoveThreshold: 0.1
+  m_Carve: 1
+  m_CarveOnlyStationary: 1
+  m_Center: {x: 0, y: 0, z: 0}
+  m_TimeToStationary: 0.5

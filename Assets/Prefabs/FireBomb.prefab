@@ -299,23 +299,10 @@ MonoBehaviour:
   previewStartWidth: 0.15
   previewEndWidth: 0.15
   explosionAudio: {fileID: 2457326028419416816}
-  bombPlacementSound: {fileID: 0}
-  bombTickingSound: {fileID: 0}
-  fireExplosionSound: {fileID: 0}
-  waterExplosionSound: {fileID: 0}
-  electricExplosionSound: {fileID: 0}
-  chainReactionSound: {fileID: 0}
   PreviewBeamPrefab: {fileID: 2323542525816555161, guid: 2f28f3dab37a24b18b1e0f34e01b6675, type: 3}
   burningGroundPrefab: {fileID: 4348720600352822355, guid: 65d062a9ede124532b6084e2edb1a180, type: 3}
   wetGroundPrefab: {fileID: 3485697704042555446, guid: 42952db2cb6464dcd903e51ca4d39ba5, type: 3}
   ElectrifiedWaterGroundPrefab: {fileID: 7823413944371803716, guid: 2f5e288d96314488e80b0c1065900c71, type: 3}
-  burningGroundLoopSound: {fileID: 0}
-  wetGroundLoopSound: {fileID: 0}
-  electricFieldLoopSound: {fileID: 0}
-  damage: 1
-  explosionPrefab: {fileID: 8464950693656172981, guid: 83ad694f134ab954580473212156b35a, type: 3}
-  firePrefab: {fileID: 8793510976239746625, guid: 8fa5143051527e949b0ae174c8430414, type: 3}
-  electricPrefab: {fileID: 0}
 --- !u!198 &8830354843810968831
 ParticleSystem:
   m_ObjectHideFlags: 0

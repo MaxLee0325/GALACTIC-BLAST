@@ -4,86 +4,41 @@ using UnityEngine.UI;
 
 public class PlayerHearts : MonoBehaviour
 {
-    private int maxHearts = 5;
-    private int currentHearts = 5;
+    [Header("Health")]
+    public int maxHearts = 5;         // fixed to 5 for your case
+    [Range(0, 5)] public int currentHearts = 5;
 
-    [Header("UI Prefab & Parent")]
-    public GameObject heartPrefab; // prefab with Image component
-    public Transform heartsParent; // panel or empty object to hold hearts
-    public Sprite fullHeart;       // sprite for filled heart
-    public Sprite emptyHeart;      // sprite for empty heart
+    [Header("UI")]
+    public List<Image> heartImages;   // 5 Image components in order (left to right)
+    public Sprite fullHeart;          // sprite for filled heart
+    public Sprite emptyHeart;         // sprite for empty heart
 
     [Header("Optional")]
-    public bool clampToMaxList = true; // unused now, kept for compatibility
+    public bool clampToMaxList = true; // if true, only first N images are used
 
-    [Header("Damage")]
     public float damageCooldown = 0.4f;
     float lastHitTime = -999f;
 
-    [Header("Lose Panel")]
-    public GameObject youLostPanel;
-
-    public bool isInvincible = false;
-    public float invincibleEndTime = 0f;
-
-    private List<Image> heartImages = new List<Image>();
-
-    [SerializeField] private PlayerControl playerControl;
-
-    [SerializeField] 
-    public AudioSource hurtAudio;
-    public AudioSource healAudio;
-    
     void Awake()
     {
-        // Example: Tanya has 7 hearts
-        if(HeroSelect.SelectedHero == HeroSelect.Hero.Tanya)
-        {
-            maxHearts = 7;
-            currentHearts = 7;
-        }
-
         currentHearts = Mathf.Clamp(currentHearts, 0, maxHearts);
-
-        // Generate hearts dynamically
-        GenerateHearts();
         RefreshUI();
-    }
-
-    void Update()
-    {
-        if (isInvincible && Time.time >= invincibleEndTime)
-        {
-            isInvincible = false;
-            playerControl.protectionShield.SetActive(false); 
-            Debug.Log("Invincibility ended.");
-        } 
-    }
-
-    public void Protect()
-    {
-        isInvincible = true;
-        playerControl.protectionShield.SetActive(true);
-        invincibleEndTime = Time.time + 3f; // 3 seconds
-        Debug.Log("Player is now invincible for 3 seconds!");
     }
 
     public void TakeDamage(int amount = 1)
     {
-        if (Time.time - lastHitTime < damageCooldown || isInvincible) return;
+        if (Time.time - lastHitTime < damageCooldown) return;
         lastHitTime = Time.time;
 
         if (currentHearts <= 0) return;
-
         currentHearts = Mathf.Max(0, currentHearts - Mathf.Abs(amount));
-        hurtAudio.Play();
         RefreshUI();
 
         if (currentHearts <= 0)
         {
-            youLostPanel.SetActive(true);
-            GameManager.Instance.SetGameState(GameManager.GameState.Lost);
-            Time.timeScale = 0;
+            // TODO: handle death (disable control, reload menu, etc.)
+            // For now just log:
+            Debug.Log("Player died (hearts reached zero).");
         }
     }
 
@@ -91,7 +46,6 @@ public class PlayerHearts : MonoBehaviour
     {
         if (currentHearts >= maxHearts) return;
         currentHearts = Mathf.Min(maxHearts, currentHearts + Mathf.Abs(amount));
-        healAudio.Play();
         RefreshUI();
     }
 
@@ -109,38 +63,20 @@ public class PlayerHearts : MonoBehaviour
         }
     }
 
-    private void GenerateHearts()
-    {
-        // Clear old hearts if any
-        foreach (Transform child in heartsParent)
-            Destroy(child.gameObject);
-        heartImages.Clear();
-
-        // Instantiate new hearts
-        for (int i = 0; i < maxHearts; i++)
-        {
-            GameObject heartGO = Instantiate(heartPrefab, heartsParent);
-            Image heartImage = heartGO.GetComponent<Image>();
-            if (heartImage != null)
-                heartImages.Add(heartImage);
-        }
-    }
-
     private void RefreshUI()
     {
-        for (int i = 0; i < heartImages.Count; i++)
-        {
-            if (i < maxHearts - currentHearts)
-            {
-                heartImages[i].sprite = emptyHeart; // lost heart
-                heartImages[i].enabled = true;
-            }
-            else
-            {
-                heartImages[i].sprite = fullHeart;  // remaining heart
-                heartImages[i].enabled = true;
-            }
-        }
-    }
+        if (heartImages == null || heartImages.Count == 0) return;
 
+        int slots = clampToMaxList ? Mathf.Min(maxHearts, heartImages.Count) : heartImages.Count;
+
+        for (int i = 0; i < slots; i++)
+        {
+            bool filled = i < currentHearts;
+            if (heartImages[i] != null)
+                heartImages[i].sprite = filled ? fullHeart : emptyHeart;
+        }
+
+        for (int i = maxHearts; i < heartImages.Count; i++)
+            if (heartImages[i] != null) heartImages[i].enabled = false;
+    }
 }

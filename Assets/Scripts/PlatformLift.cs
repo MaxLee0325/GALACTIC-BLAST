@@ -11,15 +11,12 @@ public class PlatformLift : MonoBehaviour
 
     public GameObject secondFloor;
 
-    [SerializeField] private AudioSource liftAudio;
-
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
         {
             player = other.transform;
             lifting = true;
-            liftAudio.Play();
         }
     }
 

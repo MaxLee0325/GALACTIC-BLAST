@@ -3,200 +3,89 @@ using UnityEngine;
 
 public class PlayerControl : MonoBehaviour
 {
-    private Animation anim;
-    private Rigidbody rb;
+    Animation anim;
     public float speed = 5f;
-    public float originalSpeed;
     public float moveAmount = 1f;
-    public bool isSlowed = false;
-    public GameObject bombPrefab;
-    public GameObject electricBombPrefab;
-    public GameObject fireBombPrefab;
-    public GameObject waterBombPrefab;
-    public float bombCooldown = 0.5f;
-    public float spawnForward = 0.6f;
+    public float moveSpeed = 5;
+    private bool isMoving = false;
+
+    public GameObject bombPrefab;        // assign your Bomb prefab
+    public GameObject electricBombPrefab;        // assign your Bomb prefab
+    public GameObject fireBombPrefab;        // assign your Bomb prefab
+    public GameObject waterBombPrefab;        // assign your Bomb prefab
+    public float bombCooldown = 20f;   // time between drops
+    public float spawnForward = 0.6f;    // a bit in front of feet
     private float _lastBombTime = -999f;
     private enum BombType { Normal, Electric, Fire, Water }
     private BombType currentBombType = BombType.Normal;
+
     private int maxSpeedPowerUp = 5;
     private int countSpeedPowerUp = 0;
     private float powerUpSpeed = 0.5f;
+
     private int maxRangePowerUp = 6;
     private int rangePowerUpLevel = 0;
     private float rangePerLevel = 1f;
 
-    // NEW: Bomb limit system
-    private int maxBombsAllowed = 2;  // Start with only 1 bomb
-    private int currentActiveBombs = 0;  // Track active bombs
     private int maxBombPowerUp = 6;
-
-
-    public bool isScout = false;
-    public bool isMediv = false;
-    public bool isTanya = false;
-    public bool inCoolDown = false;
-    private float skillCoolDown = 8f;
-    private GameObject dashingSmoke;
-    public GameObject protectionShield;
-    public GameObject implosionPrefab;
-
-    [SerializeField] private SkillVisualization skillVisualization;
-    [SerializeField] private PlayerHearts playerHearts;
+    private int countBombPowerUp = 0;
 
     [Header("Audio")]
     [SerializeField] private AudioSource maxPowerUpAudio;
-    [SerializeField] private AudioSource dashAudio;
-    [SerializeField] private AudioSource protectAudio;
-    [SerializeField] private AudioSource megaBombAudio;
-    [SerializeField] private AudioSource inCoolDownAudio;
-    [SerializeField] private AudioSource powerUpAudio;
-
 
     void Start()
     {
         anim = GetComponent<Animation>();
-        rb = GetComponent<Rigidbody>();
-        rb.freezeRotation = true;
-        LoadHero();
-    }
-
-    private void LoadHero()
-    {
-        switch (HeroSelect.SelectedHero)
-        {
-            case HeroSelect.Hero.Scout:
-                speed *= 1.2f;
-                isScout = true;
-                dashingSmoke = transform.Find("vfx_Smoke_01").gameObject;
-                break;
-            case HeroSelect.Hero.Tanya:
-                speed *= 0.85f;
-                isTanya = true;
-                break;
-            case HeroSelect.Hero.Mediv:
-                isMediv = true;
-                protectionShield = transform.Find("vfx_Shield_01").gameObject;
-                break;
-        }
-        originalSpeed = speed;
     }
 
     void Update()
     {
-        // --- CHEATS ---
-        if (Input.GetKeyDown(KeyCode.Alpha1))
-        {
-            maxBombsAllowed += 1;
-            Debug.Log($"[CHEAT] Max bombs increased to {maxBombsAllowed}");
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha2))
-        {
-            // +1 bomb range
-            if (rangePowerUpLevel < maxRangePowerUp)
-            {
-                rangePowerUpLevel++;
-                Debug.Log($"[CHEAT] Bomb range level = {rangePowerUpLevel}");
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha3))
-        {
-            // +1 heart
-            if (playerHearts != null)
-            {
-                playerHearts.PickupHeart();
-                Debug.Log("[CHEAT] +1 heart");
-            }
-        }
-
-        if (Input.GetKeyDown(KeyCode.Alpha4))
-        {
-            // +1 speed
-            if (countSpeedPowerUp < maxSpeedPowerUp)
-            {
-                speed += powerUpSpeed;
-                originalSpeed += powerUpSpeed;
-                countSpeedPowerUp += 1;
-                Debug.Log($"[CHEAT] Speed increased. New speed = {speed}");
-            }
-        }
-        // --- END CHEATS ---
+        if (isMoving) return;
 
         Vector3 direction = Vector3.zero;
-
-        // Hero skills
-        if (Input.GetKeyDown(KeyCode.E))
+        
+        // Movement input (no diagonal support)
+        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.W))
         {
-            if (!inCoolDown)
+            direction = Vector3.forward;
+        }
+        else if (Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.S))
+        {
+            direction = Vector3.back;
+        }
+        else if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.A))
+        {
+            direction = Vector3.left;
+        }
+        else if (Input.GetKey(KeyCode.RightArrow) || Input.GetKey(KeyCode.D))
+        {
+            direction = Vector3.right;
+        }
+        else
+        {
+            direction = Vector3.zero;
+        }
+
+
+        if (direction != Vector3.zero)
+        {
+            RotateToDirection(direction);
+            if (CanMove(direction))
             {
-                if (isScout)
-                    StartCoroutine(ScoutDash());
-                else if (isMediv)
-                    StartCoroutine(MedicvProtect());
-                else if (isTanya)
-                    StartCoroutine(TanyaMegaBomb());
-                skillVisualization.startCountDown();
+                anim.Play();
+                StartCoroutine(Move(direction));
             }
             else
             {
-                skillVisualization.Pop();
-                inCoolDownAudio.Play();
+                // Stop animation when idle
+                anim.Stop();
             }
         }
 
-          // NEW: Bomb type switching with 'O' key
-        if (Input.GetKeyDown(KeyCode.O))
+        if (Input.GetKeyDown(KeyCode.Space) && Time.time - _lastBombTime >= bombCooldown)
         {
-            CycleBombType();
-        }
-
-
-        // Movement input
-        if (Input.GetKey(KeyCode.UpArrow))
-            direction += Vector3.forward;
-        if (Input.GetKey(KeyCode.DownArrow))
-            direction += Vector3.back;
-        if (Input.GetKey(KeyCode.LeftArrow))
-            direction += Vector3.left;
-        if (Input.GetKey(KeyCode.RightArrow))
-            direction += Vector3.right;
-
-        // Normalize direction for diagonal movement
-        if (direction != Vector3.zero)
-            direction.Normalize();
-
-        // Move player
-        Move(direction);
-
-        // Drop bomb
-        if (Input.GetKeyDown(KeyCode.Space))
             DropBomb();
-    }
-
-
-    // NEW: Cycle through bomb types
-    private void CycleBombType()
-    {
-        // Cycle: Normal → Fire → Water → Electric → Normal
-        switch (currentBombType)
-        {
-            case BombType.Normal:
-                currentBombType = BombType.Fire;
-                Debug.Log("Switched to Fire Bomb");
-                break;
-            case BombType.Fire:
-                currentBombType = BombType.Water;
-                Debug.Log("Switched to Water Bomb");
-                break;
-            case BombType.Water:
-                currentBombType = BombType.Electric;
-                Debug.Log("Switched to Electric Bomb");
-                break;
-            case BombType.Electric:
-                currentBombType = BombType.Normal;
-                Debug.Log("Switched to Normal Bomb");
-                break;
+            _lastBombTime = Time.time;
         }
     }
 
@@ -206,245 +95,187 @@ public class PlayerControl : MonoBehaviour
         if (other.CompareTag("PowerUp_Water"))
         {
             currentBombType = BombType.Water;
-            powerUpAudio.Play();
+            Debug.Log("Picked up WATER power-up! Now dropping Water Bombs.");
             Destroy(other.gameObject);
         }
         // Fire power-up
         else if (other.CompareTag("PowerUp_Fire"))
         {
             currentBombType = BombType.Fire;
-            powerUpAudio.Play();
+            Debug.Log("Picked up FIRE power-up! Now dropping Fire Bombs.");
             Destroy(other.gameObject);
         }
         // Electric power-up
         else if (other.CompareTag("PowerUp_Electric"))
         {
             currentBombType = BombType.Electric;
-            powerUpAudio.Play();
+            Debug.Log("Picked up ELECTRIC power-up! Now dropping Electric Bombs.");
             Destroy(other.gameObject);
         }
+        
         // Heart Power-up
         if (other.CompareTag("PowerUp_Heart"))
         {
             var hearts = GetComponentInChildren<PlayerHearts>();
-            if (hearts != null) hearts.PickupHeart();
+            if (hearts != null )
+            {
+                hearts.PickupHeart();
+            }
             Destroy(other.gameObject);
         }
-        // Speed
+
+        // Speed Power-up
         if (other.CompareTag("PowerUp_Speed"))
         {
             if (countSpeedPowerUp < maxSpeedPowerUp)
             {
-                speed += powerUpSpeed;
-                originalSpeed += powerUpSpeed;
+                speed = speed + powerUpSpeed;
                 countSpeedPowerUp += 1;
-                powerUpAudio.Play();
             }
             else
             {
-                maxPowerUpAudio.Play();
+                PlayMaxPowerUpAudio();
             }
-            Destroy(other.gameObject);
+
+                Destroy(other.gameObject);
         }
-        // Range
+
+        // Range power-up
         if (other.CompareTag("PowerUp_Range"))
         {
             if (rangePowerUpLevel < maxRangePowerUp)
             {
                 rangePowerUpLevel++;
-                powerUpAudio.Play();
             }
             else
-                maxPowerUpAudio.Play();
+            {
+                PlayMaxPowerUpAudio();
+            }
             Destroy(other.gameObject);
         }
-        // NEW: Bomb count power-up
+
+        // Bomb power-up
         if (other.CompareTag("PowerUp_Bomb"))
         {
-            if (maxBombsAllowed < maxBombPowerUp)
+            if (countBombPowerUp < maxBombPowerUp)
             {
-                maxBombsAllowed += 1;
-                powerUpAudio.Play();
+                countBombPowerUp += 1;
+                Debug.Log("Bomb power up"+countBombPowerUp);
             }
             else
-                maxPowerUpAudio.Play();
+            {
+                PlayMaxPowerUpAudio();
+            }
             Destroy(other.gameObject);
         }
     }
 
-    void Move(Vector3 direction)
+    bool CanMove(Vector3 direction)
     {
-        if (direction == Vector3.zero)
+        Vector3 targetPos = transform.position + direction * moveAmount;
+
+        Collider[] hits = Physics.OverlapSphere(targetPos, 0.35f);
+
+        foreach (Collider hit in hits)
         {
-            anim.Stop();
-            rb.linearVelocity = Vector3.zero;
-            return;
+            if (hit.CompareTag("Wall") || hit.CompareTag("Destructible")) {
+                return false;
+            }
         }
 
-        // Rotate player
-        RotateToDirection(direction);
-
-        // Move player
-        rb.linearVelocity = direction * speed;
-
-        // Play walking animation
-        anim.Play();
+        return true;
     }
 
     void RotateToDirection(Vector3 direction)
     {
-        if (direction != Vector3.zero)
+        if (direction == Vector3.forward)
         {
-            transform.rotation = Quaternion.LookRotation(direction);
+            transform.rotation = Quaternion.Euler(0, 0, 0);
+        }
+        else if (direction == Vector3.back)
+        {
+            transform.rotation = Quaternion.Euler(0, 180, 0);
+        }
+        else if (direction == Vector3.left)
+        {
+            transform.rotation = Quaternion.Euler(0, -90, 0);
+        }
+        else if (direction == Vector3.right)
+        {
+            transform.rotation = Quaternion.Euler(0, 90, 0);
         }
     }
 
-    void DropBomb(bool megaBomb = false)
+    IEnumerator Move(Vector3 direction)
     {
-        // Check cooldown
-        if (!(Time.time - _lastBombTime >= bombCooldown)) return;
+        isMoving = true;
 
-        // NEW: Check bomb limit
-        if (currentActiveBombs >= maxBombsAllowed)
+        Vector3 start = transform.position;
+        Vector3 target = start + direction * moveAmount;
+
+        float t = 0;
+
+        while (t < 1)
         {
-            Debug.Log($"Cannot place more bombs! ({currentActiveBombs}/{maxBombsAllowed} active)");
-            return;
+            t += Time.deltaTime * moveSpeed;
+            transform.position = Vector3.Lerp(start, target, t);
+
+            yield return null;
         }
-        
-        _lastBombTime = Time.time;
-        
-        
-        Vector3 spawnPos = new Vector3(
-            Mathf.Round(transform.position.x),
-            transform.position.y + 0.5f,
-            Mathf.Round(transform.position.z)
-        );
+        transform.position = target;
+        isMoving = false;
+    }
+
+    void DropBomb()
+    {
+        if (!bombPrefab) { Debug.LogWarning("No bombPrefab set on PlayerControl."); return; }
+
+        Vector3 spawnPos = new Vector3(Mathf.Round(transform.position.x), (float)(transform.position.y + 0.5), Mathf.Round(transform.position.z));
         Quaternion spawnRot = Quaternion.identity;
-        
-        // Select bomb prefab based on current type
+
         GameObject selectedPrefab = null;
+
         switch (currentBombType)
         {
-            case BombType.Normal: selectedPrefab = bombPrefab; break;
-            case BombType.Electric: selectedPrefab = electricBombPrefab; break;
-            case BombType.Fire: selectedPrefab = fireBombPrefab; break;
-            case BombType.Water: selectedPrefab = waterBombPrefab; break;
+            case BombType.Normal:
+                selectedPrefab = bombPrefab;
+                break;
+            case BombType.Electric:
+                selectedPrefab = electricBombPrefab;
+                break;
+            case BombType.Fire:
+                selectedPrefab = fireBombPrefab;
+                break;
+            case BombType.Water:
+                selectedPrefab = waterBombPrefab;
+                break;
         }
-        
-        if (selectedPrefab == null) return;
-        
-        // Place the bomb
-        GameObject bombInstance = Instantiate(selectedPrefab, spawnPos, spawnRot);
-        BombController bc = bombInstance.GetComponent<BombController>();
-        
-        if (bc != null)
+
+        if (selectedPrefab == null)
         {
-            bc.blastRange += rangePowerUpLevel * rangePerLevel;
-            
-            if (megaBomb)
+            Debug.LogWarning("No prefab assigned for current bomb type: " + currentBombType);
+            return;
+        }
+
+        for (int i = 0; i < 1 + countBombPowerUp; i++)
+        {
+            GameObject bombInstance = Instantiate(selectedPrefab, spawnPos, spawnRot);
+
+
+            BombController bc = bombInstance.GetComponent<BombController>();
+            if (bc != null)
             {
-                GameObject implosion = Instantiate(implosionPrefab, spawnPos, spawnRot);
-                bombInstance.transform.localScale *= 1.3f;
-                Destroy(implosion, 4f);
-                bc.blastRange *= 2;
+                bc.blastRange += rangePowerUpLevel * rangePerLevel;
             }
         }
         
-        // NEW: Track this bomb
-        currentActiveBombs++;
-        StartCoroutine(TrackBombDestruction(bombInstance));
     }
 
-    // NEW: Track when bomb is destroyed to decrement counter
-    private IEnumerator TrackBombDestruction(GameObject bomb)
+    private void PlayMaxPowerUpAudio()
     {
-        // Wait until bomb is destroyed
-        while (bomb != null)
+        if (maxPowerUpAudio != null && !maxPowerUpAudio.isPlaying)
         {
-            yield return null;
+            maxPowerUpAudio?.Play();
         }
-        
-        // Bomb destroyed, decrement counter
-        currentActiveBombs--;
-        Debug.Log($"Bomb destroyed. Active bombs: {currentActiveBombs}/{maxBombsAllowed}");
-    }
-
-    private IEnumerator MedicvProtect()
-    {
-        inCoolDown = true;
-        protectAudio.Play();
-        playerHearts.Protect();
-        yield return new WaitForSeconds(skillCoolDown);
-        inCoolDown = false;
-    }
-
-    private IEnumerator TanyaMegaBomb()
-    {
-        inCoolDown = true;
-        megaBombAudio.Play();
-        DropBomb(true);
-        yield return new WaitForSeconds(skillCoolDown);
-        inCoolDown = false;
-    }
-
-    private IEnumerator ScoutDash()
-    {
-        inCoolDown = true;
-        dashAudio.Play();
-        float dashSpeed = speed * 2.5f;
-        float dashDuration = 0.3f;
-        speed = dashSpeed;
-        float endTime = Time.time + dashDuration;
-        dashingSmoke.SetActive(true);
-        while (Time.time < endTime)
-        {
-            Vector3 forwardDir = transform.forward;
-            rb.linearVelocity = forwardDir * speed;
-            yield return null;
-        }
-        dashingSmoke.SetActive(false);
-        speed = originalSpeed;
-        rb.linearVelocity = Vector3.zero;
-        yield return new WaitForSeconds(skillCoolDown);
-        inCoolDown = false;
-    }
-
-     // NEW: Public method to get current bomb type (for UI display)
-    public string GetCurrentBombType()
-    {
-        return currentBombType.ToString();
-    }
-
-    // NEW: Public method to get bomb count info (for UI display)
-    public string GetBombCountInfo()
-    {
-        return $"{currentActiveBombs}/{maxBombsAllowed}";
-    }
-
-    public void Stun(float duration, GameObject stunEffectPrefab)
-    {
-        StartCoroutine(StunCoroutine(duration, stunEffectPrefab));
-    }
-
-    private IEnumerator StunCoroutine(float duration, GameObject stunEffectPrefab)
-    {
-        Debug.Log($"Player stunned for {duration} seconds");
-        speed = 0f;
-
-        if (stunEffectPrefab != null)
-        {
-            GameObject effect = Instantiate(
-                stunEffectPrefab,
-                new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z),
-                Quaternion.identity,
-                transform
-            );
-            Destroy(effect, duration);
-        }
-
-        yield return new WaitForSeconds(duration);
-
-        speed = originalSpeed;
-        Debug.Log("Player stun ended");
     }
 }
