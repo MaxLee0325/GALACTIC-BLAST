@@ -204,6 +204,9 @@ public class BombController : MonoBehaviour
                 explosionAudio.Play();
         }
 
+        // checks position that is not detected by the ray cast
+        DamageEntitiesAtCenter();
+
         SpawnGroundEffectsAlongBlast();
         DrawExplosionBeams();
         FlashBombMesh();
@@ -211,6 +214,37 @@ public class BombController : MonoBehaviour
         GameObject explosion = Instantiate(explosionPrefab, transform.position, transform.rotation);
 
         Destroy(gameObject, 0.6f);
+    }
+
+    private void DamageEntitiesAtCenter()
+    {
+        Collider[] hits = Physics.OverlapSphere(transform.position, 0.45f);
+
+        foreach (var hit in hits)
+        {
+            if (hit == null) continue;
+
+            if (hit.CompareTag("Player"))
+            {
+                var hearts = hit.GetComponentInParent<PlayerHearts>();
+                if (hearts != null)
+                    hearts.TakeDamage(damage);
+            }
+
+            // if (hit.CompareTag("Enemy"))
+            // {
+            //     var enemy = hit.GetComponent<EnemyHealth>();
+            //     if (enemy != null)
+            //         enemy.TakeDamage(damage);
+            // }
+
+            if (hit.CompareTag("Bomb"))
+            {
+                BombController other = hit.GetComponent<BombController>();
+                if (other != null && other != this)
+                    other.Explode();
+            }
+        }
     }
 
     // Spawns ground effects along blast directions, respecting walls/obstacles
