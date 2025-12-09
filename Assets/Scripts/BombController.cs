@@ -401,6 +401,13 @@ public class BombController : MonoBehaviour
                     var hearts = hit.collider.GetComponentInParent<PlayerHearts>();
                     if (hearts) hearts.TakeDamage(damage);
                 }
+
+                else if (hit.collider.CompareTag("Enemy"))
+                {
+                    var enemy = hit.collider.GetComponentInParent<EnemyController>();
+                    enemy.TakeDamage(damage);
+                }
+
                 else if (CompareTag("ElectricBomb") && hit.collider.CompareTag("WetGround"))
                 {
                     Vector3 pos = hit.collider.transform.position;
@@ -409,7 +416,7 @@ public class BombController : MonoBehaviour
                     GameObject electrifiedWater =
                         Instantiate(ElectrifiedWaterGroundPrefab, pos, Quaternion.identity);
 
-                    // ★ ADDED: ELECTRIC EFFECT
+                    // ELECTRIC EFFECT
                     if (electricPrefab != null)
                         Instantiate(electricPrefab, pos, Quaternion.identity);
 

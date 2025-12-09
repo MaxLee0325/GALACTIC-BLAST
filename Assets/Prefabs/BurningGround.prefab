@@ -120,9 +120,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3774798328561304001}
-  - component: {fileID: 8258432450969902083}
   - component: {fileID: 245064937311735911}
-  - component: {fileID: 4264184973038620737}
   - component: {fileID: 6376107991774659247}
   m_Layer: 0
   m_Name: BurningGround
@@ -147,27 +145,6 @@ Transform:
   - {fileID: 1309494476901609884}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!65 &8258432450969902083
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4348720600352822355}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 2, z: 1}
-  m_Center: {x: 0, y: 0, z: 0}
 --- !u!65 &245064937311735911
 BoxCollider:
   m_ObjectHideFlags: 0
@@ -187,29 +164,8 @@ BoxCollider:
   m_ProvidesContacts: 0
   m_Enabled: 1
   serializedVersion: 3
-  m_Size: {x: 1, y: 2, z: 1}
-  m_Center: {x: 0, y: 0, z: -1}
---- !u!65 &4264184973038620737
-BoxCollider:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4348720600352822355}
-  m_Material: {fileID: 0}
-  m_IncludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_ExcludeLayers:
-    serializedVersion: 2
-    m_Bits: 0
-  m_LayerOverridePriority: 0
-  m_IsTrigger: 1
-  m_ProvidesContacts: 0
-  m_Enabled: 1
-  serializedVersion: 3
-  m_Size: {x: 1, y: 2, z: 1}
-  m_Center: {x: 0, y: 0, z: 1}
+  m_Size: {x: 1, y: 0.96648335, z: 0.99467933}
+  m_Center: {x: 0, y: 0.31788033, z: -0.00031381845}
 --- !u!114 &6376107991774659247
 MonoBehaviour:
   m_ObjectHideFlags: 0
