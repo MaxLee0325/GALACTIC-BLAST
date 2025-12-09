@@ -8,8 +8,6 @@ public class PanelControl : MonoBehaviour
     public GameObject pauseButton;
     public GameObject pausePanel;
 
-    bool isPaused = false;
-
     [Header("Next Level Panel")]
     public GameObject nextLevelPanel;
     public string nextLevel;

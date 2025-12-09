@@ -20,6 +20,7 @@ public class Portal : MonoBehaviour
                 {
                     youWonPanel.SetActive(true);
                     winAudio.Play();
+                    Time.timeScale = 0f;
                 }
                 else
                 {
