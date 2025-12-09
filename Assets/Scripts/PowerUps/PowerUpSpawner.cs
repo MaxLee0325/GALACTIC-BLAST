@@ -4,7 +4,7 @@ public class PowerUpSpawner : MonoBehaviour
 {
     [Header("Power-Up Settings")]
     [Range(0f, 1f)]
-    public float dropChance = 0.7f;   // 70% chance
+    public float dropChance = 0.7f; //default power up spawning percentage set to 70%
 
     public GameObject[] powerUpPrefabs;  
 
@@ -12,12 +12,13 @@ public class PowerUpSpawner : MonoBehaviour
 
     public void SpawnPowerUp()
     {
+        //Prevents multiple spawning for the same object
         if (hasTriedToSpawn)
             return;
 
         hasTriedToSpawn = true;
 
-        // Roll chance first
+
         if (Random.value > dropChance)
             return; 
 
@@ -27,11 +28,11 @@ public class PowerUpSpawner : MonoBehaviour
             return;
         }
 
-        // Pick a random power-up
+        //Pick a random power-up
         int index = Random.Range(0, powerUpPrefabs.Length);
         GameObject selectedPowerUp = powerUpPrefabs[index];
 
-        // Spawn slightly above the destructible
+        //Spawns powerups slightly above the destructible
         Vector3 spawnPos = transform.position + Vector3.up * 0.5f;
 
         Instantiate(selectedPowerUp, spawnPos, Quaternion.identity);

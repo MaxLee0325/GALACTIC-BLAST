@@ -10,8 +10,7 @@ public class SkillVisualization : MonoBehaviour
     private Transform icon; 
     private Vector3 originalScale;
 
-
-    // Start is called once before the first execution of Update after the MonoBehaviour is created
+    //Initializes the hero-specific icon, scale, and UI
     void Start()
     {
         LoadHero();
@@ -21,12 +20,7 @@ public class SkillVisualization : MonoBehaviour
         statusText = statusTransform.GetComponent<TMP_Text>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
+    //Shows the correct skill icon based on hero choice
     private void LoadHero(){
         switch (HeroSelect.SelectedHero)
         {
@@ -44,24 +38,28 @@ public class SkillVisualization : MonoBehaviour
         }
     }
 
+    //Activates the icon GameObject for the selected hero
     private void showIcon(string iconName){
         Transform dashIconTransform = transform.Find("SkillIcon/" + iconName);
         dashIconTransform.gameObject.SetActive(true);
     }
 
+    //Begins the cooldown text countdown
     public void startCountDown(){
         StartCoroutine(CountdownRoutine());
     }
 
+    //Plays a quick bounce animation when skill is unavailable
     public void Pop(){
         StartCoroutine(PopRoutine());
     }
 
+    //Handles the bounce animation for "skill on cooldown"
     private IEnumerator PopRoutine()
     {
         
         
-        Vector3 popScale = originalScale * 1.2f;   // 20% bigger
+        Vector3 popScale = originalScale * 1.2f; 
 
         float popTime = 0.1f;
         float returnTime = 0.1f;
@@ -89,6 +87,7 @@ public class SkillVisualization : MonoBehaviour
         icon.localScale = originalScale; // ensure perfect reset
     }
 
+    //Counts down from cooldown to 0 and updates UI text
     private IEnumerator CountdownRoutine()
     {
         isCoolingDown = true;

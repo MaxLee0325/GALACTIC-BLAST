@@ -63,6 +63,8 @@ public class BombController : MonoBehaviour
     void Start()
     {
         initialScale = transform.localScale;
+
+        //Assign countdown UI
         countdownText = GetComponentInChildren<TextMeshProUGUI>();
         if (countdownText != null)
         {
@@ -71,9 +73,11 @@ public class BombController : MonoBehaviour
             countdownText.alignment = TextAlignmentOptions.Center;
         }
 
+        //Play placement bomb sound
         if (bombPlacementSound != null && explosionAudio != null)
             explosionAudio.PlayOneShot(bombPlacementSound, 0.5f);
 
+        //Play ticking sound for bomb
         tickingAudioSource = gameObject.AddComponent<AudioSource>();
         tickingAudioSource.spatialBlend = 1f;
         tickingAudioSource.loop = false;
@@ -124,6 +128,7 @@ public class BombController : MonoBehaviour
         }
     }
 
+    // Update countdown text based on remaining explosionTime
     private void UpdateCountdownText()
     {
         if (countdownText == null) return;
@@ -134,6 +139,7 @@ public class BombController : MonoBehaviour
         else if (explosionTime > 0f) { countdownText.text = "1"; countdownText.color = Color.red; }
     }
 
+    // Draws line previews in 4 directions to show blast area before explosion
     private void ShowBlastPreview()
     {
         if (blastBeamPrefab == null) return;
@@ -146,6 +152,7 @@ public class BombController : MonoBehaviour
             Vector3 dir = directions[i];
             Vector3 endPoint = transform.position + dir * blastRange;
 
+            // Stop preview at walls if ray hits
             if (Physics.Raycast(transform.position, dir, out RaycastHit hit, blastRange))
             {
                 if (hit.collider.CompareTag("Wall"))
@@ -170,6 +177,7 @@ public class BombController : MonoBehaviour
         }
     }
 
+    //Handles the actual explosion logic, visuals, damage, and cleanup
     private void Explode()
     {
         if (hasExploded) return;
@@ -181,6 +189,7 @@ public class BombController : MonoBehaviour
                 if (beam != null) Destroy(beam);
         }
 
+        // Play the correct explosion sound based on bomb type
         if (explosionAudio != null)
         {
             AudioClip explosionClip = null;
@@ -238,6 +247,7 @@ public class BombController : MonoBehaviour
         }
     }
 
+    // Spawns ground effects along blast directions, respecting walls/obstacles
     private void SpawnGroundEffectsAlongBlast()
     {
         Vector3[] directions = { Vector3.forward, Vector3.back, Vector3.right, Vector3.left };
@@ -281,6 +291,7 @@ public class BombController : MonoBehaviour
         }
     }
 
+    // Spawns appropriate ground effect (fire/water/electrified) at a given grid position
     private void SpawnGroundEffectAtPosition(Vector3 position)
     {
         Vector3 groundPosition = new Vector3(
@@ -289,7 +300,7 @@ public class BombController : MonoBehaviour
             Mathf.Round(position.z)
         );
 
-        // FIRE BOMB
+        // Fire bomb ground effect
         if (CompareTag("FireBomb") && burningGroundPrefab != null)
         {
             bool touchingWet = false;
@@ -308,7 +319,6 @@ public class BombController : MonoBehaviour
             {
                 GameObject burningGround = Instantiate(burningGroundPrefab, groundPosition, Quaternion.identity);
 
-                // ★ ADDED: FIRE VISUAL EFFECT
                 if (firePrefab != null)
                     Instantiate(firePrefab, groundPosition, Quaternion.identity);
 
@@ -323,7 +333,7 @@ public class BombController : MonoBehaviour
                 }
             }
         }
-        // WATER BOMB
+        // Water bomb ground effect
         else if (CompareTag("WaterBomb") && wetGroundPrefab != null)
         {
             bool alreadyWet = false;
@@ -331,6 +341,7 @@ public class BombController : MonoBehaviour
 
             foreach (var h in hits)
             {
+                // If tile is already wet or electrified, do not place another wet ground
                 if (h != null && (h.CompareTag("WetGround") || h.CompareTag("ElectrifiedWaterGround")))
                 {
                     alreadyWet = true;
@@ -355,11 +366,11 @@ public class BombController : MonoBehaviour
         }
     }
 
+    //Function handles beam drawing, damage, destructibles, chain reactions, and special interactions
     private void DrawExplosionBeams()
     {
         Collider selfCollider = GetComponent<Collider>();
 
-        // ELECTRIFY WET AREAS
         if (CompareTag("ElectricBomb") && ElectrifiedWaterGroundPrefab != null)
         {
             Collider[] wetHits = Physics.OverlapSphere(transform.position, blastRange);
@@ -379,7 +390,6 @@ public class BombController : MonoBehaviour
                     GameObject electrifiedWater =
                         Instantiate(ElectrifiedWaterGroundPrefab, groundPos, Quaternion.identity);
 
-                    // ★ ADDED: ELECTRIC VISUAL EFFECT
                     if (electricPrefab != null)
                         Instantiate(electricPrefab, groundPos, Quaternion.identity);
 
@@ -443,7 +453,6 @@ public class BombController : MonoBehaviour
                     GameObject electrifiedWater =
                         Instantiate(ElectrifiedWaterGroundPrefab, pos, Quaternion.identity);
 
-                    // ★ ADDED: ELECTRIC EFFECT
                     if (electricPrefab != null)
                         Instantiate(electricPrefab, pos, Quaternion.identity);
 
@@ -493,6 +502,7 @@ public class BombController : MonoBehaviour
             explosionAudio.PlayOneShot(chainReactionSound, 0.7f);
     }
 
+    //Coroutine to animate the beam stretching from bomb to endPoint over time
     private IEnumerator AnimateBeamGrowth(LineRenderer lr, Vector3 endPoint, float duration)
     {
         float elapsed = 0f;
@@ -508,6 +518,7 @@ public class BombController : MonoBehaviour
         }
     }
 
+    //Quickly flashes the bomb material using emission before it disappears
     private void FlashBombMesh()
     {
         Renderer r = GetComponent<Renderer>();
@@ -518,6 +529,7 @@ public class BombController : MonoBehaviour
         }
     }
 
+    // Defuses the bomb before it explodes 
     public void Defuse()
     {
         if (hasExploded) return;

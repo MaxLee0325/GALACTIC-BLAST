@@ -22,8 +22,10 @@ public class PanelControl : MonoBehaviour
         Level3
     }
 
+    // Stores the level chosen from the menu for HeroSelect to use
     public static Level SelectedLevel { get; private set; }
 
+    // Pause the game by freezing time and showing the pause UI
     public void Pause()
     {
        if (pausePanel != null && !pausePanel.activeSelf)
@@ -36,6 +38,7 @@ public class PanelControl : MonoBehaviour
        }
     }
 
+    // Resume gameplay from pause
     public void Resume()
     {
         if (pausePanel != null && pausePanel.activeSelf)
@@ -48,12 +51,14 @@ public class PanelControl : MonoBehaviour
         }
     }
 
+    // Restart the current level
     public void Restart()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
+    // Function to call when the player reaches a portal (level completed)
     public void showNextLevelPanel()
     {
         if (nextLevelPanel != null)
@@ -68,12 +73,14 @@ public class PanelControl : MonoBehaviour
 
     }
 
+    // Load the next level scene
     public void LoadNextLevel()
     {
         Time.timeScale = 1;
         SceneManager.LoadScene(nextLevel);
     }
 
+    // Show the level selector panel
     public void showLevelSelectorPanel()
     {
         if (levelSelectorPanel != null)
@@ -83,6 +90,7 @@ public class PanelControl : MonoBehaviour
         Time.timeScale = 0;
     }
 
+    // Called when selecting a level from the UI
     public void GoToLevel(string level)
     {
         Time.timeScale = 1;
@@ -110,14 +118,17 @@ public class PanelControl : MonoBehaviour
         }
     }
 
+    // Load the Level Selector scene
     public void GoToLevelSelector(){
         SceneManager.LoadScene("Level Selector");
     }
 
+    // Load the Main Menu scene
     public void GoToMainMenu(){
         SceneManager.LoadScene("Main Menu");
     }
 
+    // Load Hero selection screen after choosing a level
     public void selectHero(){
         SceneManager.LoadScene("Hero Selector");
     }

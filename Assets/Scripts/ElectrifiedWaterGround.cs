@@ -14,15 +14,22 @@ public class ElectrifiedWaterGround : MonoBehaviour
     public float detectionRadius = 0.5f;
     public GameObject stunEffectPrefab;
 
-    // Track players and their original speed
+    // Dictionary storing players currently inside the area and their original speed
     private Dictionary<PlayerControl, float> playersInside = new Dictionary<PlayerControl, float>();
+
+    // Dictionary tracking PlayerHearts components inside the area
     private Dictionary<PlayerHearts, PlayerHearts> playerHearts = new Dictionary<PlayerHearts, PlayerHearts>();
+
+    // Tracks which players are currently stunned so you don't stun twice
     private HashSet<PlayerControl> currentlyStunned = new HashSet<PlayerControl>();
+    
     private Coroutine damageCoroutine;
 
     void Start()
     {
         Destroy(gameObject, lifeTime);
+
+        // Start damage loop that repeatedly applies damage to all players standing on tile
         damageCoroutine = StartCoroutine(DamageLoop());
     }
 
@@ -32,15 +39,19 @@ public class ElectrifiedWaterGround : MonoBehaviour
         {
             PlayerControl pc = other.GetComponent<PlayerControl>();
             PlayerHearts ph = other.GetComponent<PlayerHearts>();
+
+            // Add player to active electrified zone tracking
             if (pc != null && !playersInside.ContainsKey(pc))
             {
                 Debug.Log($"Player triggered electrified water at {transform.position}");
                 playersInside.Add(pc, pc.speed);
                 if (ph != null) playerHearts[ph] = ph;
+
+                // Apply stun only once on initial entry
                 if (!currentlyStunned.Contains(pc))
                 {
                     currentlyStunned.Add(pc);
-                    pc.Stun(stunDuration, stunEffectPrefab); // Player handles their own stun
+                    pc.Stun(stunDuration, stunEffectPrefab); 
                 }
             }
         }
@@ -65,12 +76,14 @@ public class ElectrifiedWaterGround : MonoBehaviour
         }
     }
 
+    // Loop that continues damaging all players standing on electrified water
     IEnumerator DamageLoop()
     {
         while (true)
         {
             yield return new WaitForSeconds(damageInterval);
 
+            // Apply damage to each player still inside the area
             foreach (var kvp in playerHearts)
             {
                 if (kvp.Key != null)
@@ -84,7 +97,7 @@ public class ElectrifiedWaterGround : MonoBehaviour
 
     private void OnDestroy()
     {
-        // Clean up dictionaries
+        // Clean up all tracking dictionaries when the effect disappears
         playersInside.Clear();
         playerHearts.Clear();
         currentlyStunned.Clear();
