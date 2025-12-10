@@ -1,5 +1,7 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.AI;
 
 public class WetGround : MonoBehaviour
 {
@@ -13,12 +15,13 @@ public class WetGround : MonoBehaviour
     // Track players and their original speed
     private Dictionary<PlayerControl, float> playersInside = new Dictionary<PlayerControl, float>();
 
-    //TODO: wait for enemy implementation
-    // private Dictionary<Enemy, float> enemiesInside = new Dictionary<Enemy, float>();
+     Dictionary<NavMeshAgent, float> enemiesInside = new Dictionary<NavMeshAgent, float>();
+     private List<EnemyHealth> enemiesToHit = new List<EnemyHealth>();
 
     private void Start()
     {
         Destroy(gameObject, lifeTime);
+        StartCoroutine(BurnLoop());
     }
 
     private void OnTriggerEnter(Collider other)
@@ -36,16 +39,26 @@ public class WetGround : MonoBehaviour
             }
         }
 
-        //TODO: wait for enemy implementation
-        // if (other.CompareTag("Enemy"))
-        // {
-        //     Enemy e = other.GetComponent<Enemy>();
-        //     if (e != null && !enemiesInside.ContainsKey(e))
-        //     {
-        //         enemiesInside.Add(e, e.speed);  // store original speed
-        //         e.speed *= slowMultiplier;      // apply slow
-        //     }
-        // }
+        if (other.CompareTag("FireEnemy"))
+        {
+            var e =other.GetComponent<NavMeshAgent>();
+            var eHealth = other.GetComponent<EnemyHealth>();
+            if (e != null && !enemiesInside.ContainsKey(e) && eHealth != null && !enemiesToHit.Contains(eHealth))
+            {
+                enemiesInside.Add(e, e.speed);
+                e.speed *= slowMultiplier;
+                enemiesToHit.Add(eHealth);
+            }
+        }
+        if (other.CompareTag("ElectricEnemy"))
+        {
+            var e = other.GetComponent<NavMeshAgent>();
+            if (e != null && !enemiesInside.ContainsKey(e))
+            {
+                enemiesInside.Add(e, e.speed);
+                e.speed *= slowMultiplier;
+            }
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -62,16 +75,24 @@ public class WetGround : MonoBehaviour
             }
         }
 
-        //TODO: wait for enemy implementation
-        // if (other.CompareTag("Enemy"))
-        // {
-        //     Enemy e = other.GetComponent<Enemy>();
-        //     if (e != null && enemiesInside.ContainsKey(e))
-        //     {
-        //         e.speed = enemiesInside[e];  // restore original speed
-        //         enemiesInside.Remove(e);
-        //     }
-        // }
+        if (other.CompareTag("FireEnemy"))
+        {
+            var e =other.GetComponent<NavMeshAgent>();
+            var eHealth = other.GetComponent<EnemyHealth>();
+            if (e != null && enemiesInside.ContainsKey(e) && eHealth != null && enemiesToHit.Contains(eHealth))
+            {
+                enemiesInside.Remove(e);
+                enemiesToHit.Remove(eHealth);
+            }
+        }
+        if (other.CompareTag("ElectricEnemy"))
+        {
+            var e = other.GetComponent<NavMeshAgent>();
+            if (e != null && !enemiesInside.ContainsKey(e))
+            {
+                enemiesInside.Remove(e);
+            }
+        }
     }
 
     private void OnDestroy()
@@ -86,13 +107,29 @@ public class WetGround : MonoBehaviour
             }
         }
         playersInside.Clear();
-
-        //TODO: wait for enemy implementation
-        // foreach (var kvp in enemiesInside)
-        // {
-        //     if (kvp.Key != null)
-        //         kvp.Key.speed = kvp.Value;
-        // }
-        // enemiesInside.Clear();
+        
+        
+         foreach (var kvp in enemiesInside)
+         {
+             if (kvp.Key != null)
+                 kvp.Key.speed = kvp.Value;
+         }
+         enemiesInside.Clear();
     }
+    
+    private IEnumerator BurnLoop()
+    {
+        while (true)
+        {
+            foreach (var e in enemiesInside)
+                if (e.Key != null)
+                {
+                    e.Key.speed = e.Value;
+                    Debug.Log("enemySlow");
+                }
+
+            yield return null; // ← THIS prevents the crash
+        }
+    }
+
 }

@@ -16,6 +16,7 @@ public class ElectrifiedWaterGround : MonoBehaviour
 
     // Track players and their original speed
     private Dictionary<PlayerControl, float> playersInside = new Dictionary<PlayerControl, float>();
+    private List<EnemyHealth> enemiesInside = new List<EnemyHealth>();
     private Dictionary<PlayerHearts, PlayerHearts> playerHearts = new Dictionary<PlayerHearts, PlayerHearts>();
     private HashSet<PlayerControl> currentlyStunned = new HashSet<PlayerControl>();
     private Coroutine damageCoroutine;
@@ -44,6 +45,16 @@ public class ElectrifiedWaterGround : MonoBehaviour
                 }
             }
         }
+
+        if (other.CompareTag("WaterEnemy") || other.CompareTag("FireEnemy") || other.CompareTag("ElectricEnemy"))
+        {
+            var enemy = other.GetComponent<EnemyHealth>();
+            if (enemy != null)
+            {
+                enemiesInside.Add(enemy);
+            }
+        }
+            
     }
 
     private void OnTriggerExit(Collider other)
@@ -63,6 +74,15 @@ public class ElectrifiedWaterGround : MonoBehaviour
                 playerHearts.Remove(ph);
             }
         }
+        
+        if (other.CompareTag("WaterEnemy") || other.CompareTag("FireEnemy") || other.CompareTag("ElectricEnemy"))
+        {
+            var enemy = other.GetComponent<EnemyHealth>();
+            if (enemy != null)
+            {
+                enemiesInside.Remove(enemy);
+            }
+        }
     }
 
     IEnumerator DamageLoop()
@@ -77,6 +97,14 @@ public class ElectrifiedWaterGround : MonoBehaviour
                 {
                     kvp.Key.TakeDamage(damageAmount);
                     Debug.Log($"Electric damage dealt to player");
+                }
+            }
+
+            foreach (var kvp in enemiesInside)
+            {
+                if (kvp != null)
+                {
+                    kvp.TakeDamage(damageAmount);
                 }
             }
         }
