@@ -129,36 +129,40 @@ public class WaterTurtleAI : MonoBehaviour
 
     void Chase()
     {
-        anim.SetBool("IsAttacking", false);
-        
-        agent.isStopped = false;
-        agent.stoppingDistance = attackRange;
-        agent.SetDestination(player.transform.position);
-        
-        Vector3 lookDirection = (player.transform.position - transform.position).normalized;
-        lookDirection.y = 0;
-        if (lookDirection != Vector3.zero)
+        if (agent && agent.isActiveAndEnabled && agent.isOnNavMesh) 
         {
-            transform.forward = Vector3.Lerp(transform.forward, lookDirection, Time.deltaTime * 5f);
+            anim.SetBool("IsAttacking", false);
+            
+            agent.isStopped = false;
+            agent.stoppingDistance = attackRange;
+            agent.SetDestination(player.transform.position);
+            
+            Vector3 lookDirection = (player.transform.position - transform.position).normalized;
+            lookDirection.y = 0;
+            if (lookDirection != Vector3.zero)
+            {
+                transform.forward = Vector3.Lerp(transform.forward, lookDirection, Time.deltaTime * 5f);
+            }
         }
-        Debug.Log(" Chase");
     }
 
     void Attack()
     {
-        if (isDetonating) return;
+        if(agent && agent.isActiveAndEnabled && agent.isOnNavMesh)
+        {
+            if (isDetonating) return;
 
-        inAttackSequnce = true;
-        
-        anim.SetBool("IsWalking", false);
-        anim.SetBool("IsAttacking", true);
-        
-        agent.isStopped = true;
-        agent.ResetPath();
-        agent.velocity = Vector3.zero;
-        
-        StartCoroutine(ExplosionCountdown());
-
+            inAttackSequnce = true;
+            
+            anim.SetBool("IsWalking", false);
+            anim.SetBool("IsAttacking", true);
+            
+            agent.isStopped = true;
+            agent.ResetPath();
+            agent.velocity = Vector3.zero;
+            
+            StartCoroutine(ExplosionCountdown());
+        }
     }
 
     IEnumerator ExplosionCountdown()

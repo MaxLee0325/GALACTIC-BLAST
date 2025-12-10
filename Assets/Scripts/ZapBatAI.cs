@@ -134,7 +134,6 @@ public class ZapBatAI : MonoBehaviour
         {
             transform.forward = Vector3.Lerp(transform.forward, lookDirection, Time.deltaTime * 5f);
         }
-        Debug.Log("ZapBat Chase");
     }
 
     void Attack()
@@ -148,71 +147,73 @@ public class ZapBatAI : MonoBehaviour
 
     IEnumerator ElectricAttack()
     {
-        if (agent == null) yield break;;
-        // Stop all movement
-        agent.isStopped = true;
-        agent.ResetPath();
-        agent.velocity = Vector3.zero;
-        
-        anim.SetBool("IsWalking", false);
-        anim.SetBool("IsAttacking", true);
-        
-        // Create preview visual
-        blastPreview = new GameObject("ElectricBlastPreview");
-        blastPreview.transform.position = transform.position;
-
-        LineRenderer lr = blastPreview.AddComponent<LineRenderer>();
-        lr.positionCount = 5;
-        lr.loop = true;
-        lr.material = new Material(Shader.Find("Sprites/Default"));
-        lr.widthMultiplier = previewLineWidth;
-        lr.startColor = lr.endColor = previewColor;
-
-        float r = blastRange;
-        Vector3[] corners = new Vector3[5];
-        corners[0] = transform.position + new Vector3(-r, 0.1f, -r);
-        corners[1] = transform.position + new Vector3(-r, 0.1f, r);
-        corners[2] = transform.position + new Vector3(r, 0.1f, r);
-        corners[3] = transform.position + new Vector3(r, 0.1f, -r);
-        corners[4] = corners[0];
-        lr.SetPositions(corners);
-
-        // Blink once
-        float timer = blinkDelay;
-        bool visible = true;
-        
-        while (timer > 0f)
+        if (agent && agent.isActiveAndEnabled && agent.isOnNavMesh)
         {
-            if (lr != null)
-            {
-                visible = !visible;
-                lr.enabled = visible;
-            }
+            // Stop all movement
+            agent.isStopped = true;
+            agent.ResetPath();
+            agent.velocity = Vector3.zero;
             
-            // Keep tracking player even while stationary
-            if (playerInSonarRange)
-            {
-                lastTimeDetectedPlayer = Time.time;
-            }
+            anim.SetBool("IsWalking", false);
+            anim.SetBool("IsAttacking", true);
             
-            yield return new WaitForSeconds(0.5f);
-            timer -= 0.5f;
+            // Create preview visual
+            blastPreview = new GameObject("ElectricBlastPreview");
+            blastPreview.transform.position = transform.position;
+
+            LineRenderer lr = blastPreview.AddComponent<LineRenderer>();
+            lr.positionCount = 5;
+            lr.loop = true;
+            lr.material = new Material(Shader.Find("Sprites/Default"));
+            lr.widthMultiplier = previewLineWidth;
+            lr.startColor = lr.endColor = previewColor;
+
+            float r = blastRange;
+            Vector3[] corners = new Vector3[5];
+            corners[0] = transform.position + new Vector3(-r, 0.1f, -r);
+            corners[1] = transform.position + new Vector3(-r, 0.1f, r);
+            corners[2] = transform.position + new Vector3(r, 0.1f, r);
+            corners[3] = transform.position + new Vector3(r, 0.1f, -r);
+            corners[4] = corners[0];
+            lr.SetPositions(corners);
+
+            // Blink once
+            float timer = blinkDelay;
+            bool visible = true;
+            
+            while (timer > 0f)
+            {
+                if (lr != null)
+                {
+                    visible = !visible;
+                    lr.enabled = visible;
+                }
+                
+                // Keep tracking player even while stationary
+                if (playerInSonarRange)
+                {
+                    lastTimeDetectedPlayer = Time.time;
+                }
+                
+                yield return new WaitForSeconds(0.5f);
+                timer -= 0.5f;
+            }
+
+            // Destroy preview
+            if (blastPreview != null)
+                Destroy(blastPreview);
+
+            // Spawn electric tiles
+            SpawnElectricTiles();
+            
+            // Stay stationary for tile duration
+            yield return new WaitForSeconds(electricTileDuration);
+            
+            // Attack sequence complete
+            inAttackSequence = false;
+            anim.SetBool("IsAttacking", false);
+            agent.isStopped = false;
         }
-
-        // Destroy preview
-        if (blastPreview != null)
-            Destroy(blastPreview);
-
-        // Spawn electric tiles
-        SpawnElectricTiles();
-        
-        // Stay stationary for tile duration
-        yield return new WaitForSeconds(electricTileDuration);
-        
-        // Attack sequence complete
-        inAttackSequence = false;
-        anim.SetBool("IsAttacking", false);
-        agent.isStopped = false;
     }
 
     void SpawnElectricTiles()
