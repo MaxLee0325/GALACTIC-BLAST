@@ -724,7 +724,7 @@ MonoBehaviour:
   anim: {fileID: 8585441996175030848}
   teleportDistance: 3
   teleportCheckRadius: 0.5
-  electricTilePrefab: {fileID: 7823413944371803716, guid: 2f5e288d96314488e80b0c1065900c71, type: 3}
+  electricTilePrefab: {fileID: 7823413944371803716, guid: ea22987c2f1e244b6a5b4be2e98eee23, type: 3}
   attackRange: 0.72
   electricTileDuration: 3
   blastRange: 2.67

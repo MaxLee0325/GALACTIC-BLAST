@@ -151,7 +151,7 @@ public class FireEnemyAI : MonoBehaviour
         {
             // Pick a random point around the player
             Vector3 randomPoint;
-            if (GetRandomPointAroundPlayer(out randomPoint))
+            if (GetRandomPointAroundPlayer(out randomPoint) && agent != null)
             {
                 // Set stopping distance small
                 agent.stoppingDistance = 0.2f;

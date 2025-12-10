@@ -393,7 +393,7 @@ MonoBehaviour:
     m_Bits: 128
   loseMemory: 3
   anim: {fileID: 7201818153533085475}
-  burningGroundPrefab: {fileID: 4348720600352822355, guid: 65d062a9ede124532b6084e2edb1a180, type: 3}
+  burningGroundPrefab: {fileID: 4348720600352822355, guid: deed6eb2c11c741f5997e101268d7eb1, type: 3}
   delayBetweenAttacks: 2
   circleRadius: 4
   lavaSpawnAudio: {fileID: 0}

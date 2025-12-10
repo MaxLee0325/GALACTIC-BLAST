@@ -162,72 +162,72 @@ public class WaterTurtleAI : MonoBehaviour
     }
 
     IEnumerator ExplosionCountdown()
-{
-    isDetonating = true;
-    float timer = explodeDelay;
-
-    // Create the preview visual immediately
-    blastPreview = new GameObject("BlastPreview");
-    blastPreview.transform.position = transform.position;
-
-    LineRenderer lr = blastPreview.AddComponent<LineRenderer>();
-    lr.positionCount = 5; // 4 corners + return to first
-    lr.loop = true;
-    lr.material = new Material(Shader.Find("Sprites/Default"));
-    lr.widthMultiplier = previewLineWidth;
-    lr.startColor = lr.endColor = previewColor;
-
-    float r = blastRange;
-    Vector3[] corners = new Vector3[5];
-    corners[0] = transform.position + new Vector3(-r, 0.1f, -r);
-    corners[1] = transform.position + new Vector3(-r, 0.1f, r);
-    corners[2] = transform.position + new Vector3(r, 0.1f, r);
-    corners[3] = transform.position + new Vector3(r, 0.1f, -r);
-    corners[4] = corners[0]; // close the square
-    lr.SetPositions(corners);
-
-    // Blink logic
-    bool visible = true;
-    while (timer > 0f)
     {
-        if (countdownText != null)
+        isDetonating = true;
+        float timer = explodeDelay;
+
+        // Create the preview visual immediately
+        blastPreview = new GameObject("BlastPreview");
+        blastPreview.transform.position = transform.position;
+
+        LineRenderer lr = blastPreview.AddComponent<LineRenderer>();
+        lr.positionCount = 5; // 4 corners + return to first
+        lr.loop = true;
+        lr.material = new Material(Shader.Find("Sprites/Default"));
+        lr.widthMultiplier = previewLineWidth;
+        lr.startColor = lr.endColor = previewColor;
+
+        float r = blastRange;
+        Vector3[] corners = new Vector3[5];
+        corners[0] = transform.position + new Vector3(-r, 0.1f, -r);
+        corners[1] = transform.position + new Vector3(-r, 0.1f, r);
+        corners[2] = transform.position + new Vector3(r, 0.1f, r);
+        corners[3] = transform.position + new Vector3(r, 0.1f, -r);
+        corners[4] = corners[0]; // close the square
+        lr.SetPositions(corners);
+
+        // Blink logic
+        bool visible = true;
+        while (timer > 0f)
         {
-            countdownText.text = Mathf.Ceil(timer).ToString();
-
-            // optional: color gradient
-            if (timer > explodeDelay / 2f) countdownText.color = Color.green;
-            else if (timer > explodeDelay / 4f) countdownText.color = Color.yellow;
-            else countdownText.color = Color.red;
-
-            // always face camera
-            if (Camera.main != null)
+            if (countdownText != null)
             {
-                countdownText.transform.LookAt(Camera.main.transform);
-                countdownText.transform.Rotate(0, 180, 0);
+                countdownText.text = Mathf.Ceil(timer).ToString();
+
+                // optional: color gradient
+                if (timer > explodeDelay / 2f) countdownText.color = Color.green;
+                else if (timer > explodeDelay / 4f) countdownText.color = Color.yellow;
+                else countdownText.color = Color.red;
+
+                // always face camera
+                if (Camera.main != null)
+                {
+                    countdownText.transform.LookAt(Camera.main.transform);
+                    countdownText.transform.Rotate(0, 180, 0);
+                }
             }
+
+            // Blink every 0.5 seconds
+            if (lr != null)
+            {
+                visible = !visible;
+                lr.enabled = visible;
+            }
+
+            yield return new WaitForSeconds(0.5f);
+            timer -= 0.5f;
         }
 
-        // Blink every 0.5 seconds
-        if (lr != null)
-        {
-            visible = !visible;
-            lr.enabled = visible;
-        }
+        // Explosion happens
+        if (countdownText != null)
+            countdownText.text = "BOOM!";
 
-        yield return new WaitForSeconds(0.5f);
-        timer -= 0.5f;
+        if (blastPreview != null)
+            Destroy(blastPreview);
+
+        Explode();
+        isDetonating = false;
     }
-
-    // Explosion happens
-    if (countdownText != null)
-        countdownText.text = "BOOM!";
-
-    if (blastPreview != null)
-        Destroy(blastPreview);
-
-    Explode();
-    isDetonating = false;
-}
 
 
      void Explode()

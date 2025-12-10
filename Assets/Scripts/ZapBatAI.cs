@@ -148,6 +148,7 @@ public class ZapBatAI : MonoBehaviour
 
     IEnumerator ElectricAttack()
     {
+        if (agent == null) yield break;;
         // Stop all movement
         agent.isStopped = true;
         agent.ResetPath();
