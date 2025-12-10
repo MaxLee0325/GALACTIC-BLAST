@@ -1,13 +1,14 @@
 using UnityEngine;
 
+//Script to float and rotate power ups
 public class PowerUpFloatAndRotate : MonoBehaviour
 {
     [Header("Floating Settings")]
-    public float floatAmplitude = 0.25f;   // how high it moves up/down
-    public float floatSpeed = 2f;          // how fast it moves
+    public float floatAmplitude = 0.25f;   
+    public float floatSpeed = 2f;          
 
     [Header("Rotation Settings")]
-    public float rotationSpeed = 50f;      // degrees per second
+    public float rotationSpeed = 50f;     
 
     private Vector3 startPos;
 
@@ -18,11 +19,9 @@ public class PowerUpFloatAndRotate : MonoBehaviour
 
     void Update()
     {
-        // Floating motion
         float newY = startPos.y + Mathf.Sin(Time.time * floatSpeed) * floatAmplitude;
         transform.position = new Vector3(transform.position.x, newY, transform.position.z);
 
-        // Rotation
         transform.Rotate(Vector3.up * rotationSpeed * Time.deltaTime, Space.World);
     }
 }

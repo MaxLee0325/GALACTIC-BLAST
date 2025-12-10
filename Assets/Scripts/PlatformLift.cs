@@ -13,6 +13,7 @@ public class PlatformLift : MonoBehaviour
 
     [SerializeField] private AudioSource liftAudio;
 
+    // Trigger activates when the player steps onto the lift platform
     private void OnTriggerEnter(Collider other)
     {
         if (other.CompareTag("Player"))
@@ -25,8 +26,10 @@ public class PlatformLift : MonoBehaviour
 
     private void Update()
     {
+        // Do nothing if lift isn't active or player is missing
         if (!lifting || player == null) return;
 
+        // Move the player towards the destination smoothly
         player.position = Vector3.MoveTowards(
             player.position,
             destination.position,
@@ -35,6 +38,7 @@ public class PlatformLift : MonoBehaviour
 
         player.Rotate(Vector3.up * rotateSpeed * Time.deltaTime, Space.World);
 
+        // Check if player has reached destination
         if (Vector3.Distance(player.position, destination.position) < 0.1f)
         {
             lifting = false;

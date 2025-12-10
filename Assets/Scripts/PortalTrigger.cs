@@ -8,6 +8,7 @@ public class PortalTrigger : MonoBehaviour
 
     private bool activated = false;
 
+    //Starts the teleportation animation/pulse when player enters the trigger area.
     private void OnTriggerEnter(Collider other)
     {
         if (activated) return;
@@ -19,6 +20,7 @@ public class PortalTrigger : MonoBehaviour
         }
     }
 
+    //Plays portal VFX and teleports the player after a short delay.
     private IEnumerator PortalSequence(Transform player)
     {
         if (portalVisual != null)

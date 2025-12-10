@@ -3,8 +3,8 @@ using UnityEngine;
 
 public class CameraControl : MonoBehaviour
 {
-    public Transform player;      // Assign your player here
-    public float height = 10f;    // Camera height
+    public Transform player;      
+    public float height = 10f;
     public float smoothSpeed = 5f;
 
     // Bounds for horizontal camera movement
