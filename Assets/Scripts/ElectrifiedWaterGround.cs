@@ -16,6 +16,7 @@ public class ElectrifiedWaterGround : MonoBehaviour
 
     // Dictionary storing players currently inside the area and their original speed
     private Dictionary<PlayerControl, float> playersInside = new Dictionary<PlayerControl, float>();
+    private List<EnemyHealth> enemiesInside = new List<EnemyHealth>();
 
     // Dictionary tracking PlayerHearts components inside the area
     private Dictionary<PlayerHearts, PlayerHearts> playerHearts = new Dictionary<PlayerHearts, PlayerHearts>();
@@ -55,6 +56,16 @@ public class ElectrifiedWaterGround : MonoBehaviour
                 }
             }
         }
+
+        if (other.CompareTag("WaterEnemy") || other.CompareTag("FireEnemy") || other.CompareTag("ElectricEnemy"))
+        {
+            var enemy = other.GetComponent<EnemyHealth>();
+            if (enemy != null)
+            {
+                enemiesInside.Add(enemy);
+            }
+        }
+            
     }
 
     private void OnTriggerExit(Collider other)
@@ -74,6 +85,15 @@ public class ElectrifiedWaterGround : MonoBehaviour
                 playerHearts.Remove(ph);
             }
         }
+        
+        if (other.CompareTag("WaterEnemy") || other.CompareTag("FireEnemy") || other.CompareTag("ElectricEnemy"))
+        {
+            var enemy = other.GetComponent<EnemyHealth>();
+            if (enemy != null)
+            {
+                enemiesInside.Remove(enemy);
+            }
+        }
     }
 
     // Loop that continues damaging all players standing on electrified water
@@ -90,6 +110,14 @@ public class ElectrifiedWaterGround : MonoBehaviour
                 {
                     kvp.Key.TakeDamage(damageAmount);
                     Debug.Log($"Electric damage dealt to player");
+                }
+            }
+
+            foreach (var kvp in enemiesInside)
+            {
+                if (kvp != null)
+                {
+                    kvp.TakeDamage(damageAmount);
                 }
             }
         }

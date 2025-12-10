@@ -86,14 +86,20 @@ public class BombController : MonoBehaviour
         {
             beamColorGradient = new Gradient();
             GradientColorKey[] colorKeys = new GradientColorKey[3];
-            colorKeys[0].color = new Color(1f, 0.5f, 0f, 1f); colorKeys[0].time = 0f;
-            colorKeys[1].color = Color.yellow; colorKeys[1].time = 0.5f;
-            colorKeys[2].color = Color.yellow; colorKeys[2].time = 1f;
+            colorKeys[0].color = new Color(1f, 0.5f, 0f, 1f);
+            colorKeys[0].time = 0f;
+            colorKeys[1].color = Color.yellow;
+            colorKeys[1].time = 0.5f;
+            colorKeys[2].color = Color.yellow;
+            colorKeys[2].time = 1f;
 
             GradientAlphaKey[] alphaKeys = new GradientAlphaKey[3];
-            alphaKeys[0].alpha = 1f; alphaKeys[0].time = 0f;
-            alphaKeys[1].alpha = 1f; alphaKeys[1].time = 0.5f;
-            alphaKeys[2].alpha = 0f; alphaKeys[2].time = 1f;
+            alphaKeys[0].alpha = 1f;
+            alphaKeys[0].time = 0f;
+            alphaKeys[1].alpha = 1f;
+            alphaKeys[1].time = 0.5f;
+            alphaKeys[2].alpha = 0f;
+            alphaKeys[2].time = 1f;
 
             beamColorGradient.SetKeys(colorKeys, alphaKeys);
         }
@@ -231,12 +237,34 @@ public class BombController : MonoBehaviour
                     hearts.TakeDamage(damage);
             }
 
-            // if (hit.CompareTag("Enemy"))
-            // {
-            //     var enemy = hit.GetComponent<EnemyHealth>();
-            //     if (enemy != null)
-            //         enemy.TakeDamage(damage);
-            // }
+            else if (hit.CompareTag("WaterEnemy"))
+                {
+                    var e = hit.GetComponentInParent<EnemyHealth>();
+                    if (CompareTag("ElectricBomb"))
+                    {
+                        if(e) e.TakeDamage(5);
+                    }
+                    if(e) e.TakeDamage(1);
+                }
+                else if (hit.CompareTag("FireEnemy"))
+                {
+                    var e = hit.GetComponentInParent<EnemyHealth>();
+                    if (CompareTag("WaterBomb"))
+                    {
+                        if(e) e.TakeDamage(5);
+                    }
+                    if(e) e.TakeDamage(1);
+                    
+                }
+                else if (hit.CompareTag("ElectricEnemy"))
+                { Debug.Log("Collider hit Eyebat");
+                    var e = hit.GetComponentInParent<EnemyHealth>();
+                    if (CompareTag("FireBomb"))
+                    {
+                        if(e) e.TakeDamage(5);
+                    }
+                    if(e) e.TakeDamage(1);
+                }
 
             if (hit.CompareTag("Bomb"))
             {
@@ -444,6 +472,34 @@ public class BombController : MonoBehaviour
                 {
                     var hearts = hit.collider.GetComponentInParent<PlayerHearts>();
                     if (hearts) hearts.TakeDamage(damage);
+                }
+                else if (hit.collider.CompareTag("WaterEnemy"))
+                {
+                    var e = hit.collider.GetComponentInParent<EnemyHealth>();
+                    if (CompareTag("ElectricBomb"))
+                    {
+                        if(e) e.TakeDamage(5);
+                    }
+                    if(e) e.TakeDamage(1);
+                }
+                else if (hit.collider.CompareTag("FireEnemy"))
+                {
+                    var e = hit.collider.GetComponentInParent<EnemyHealth>();
+                    if (CompareTag("WaterBomb"))
+                    {
+                        if(e) e.TakeDamage(5);
+                    }
+                    if(e) e.TakeDamage(1);
+                    
+                }
+                else if (hit.collider.CompareTag("ElectricEnemy"))
+                { Debug.Log("Collider hit Eyebat");
+                    var e = hit.collider.GetComponentInParent<EnemyHealth>();
+                    if (CompareTag("FireBomb"))
+                    {
+                        if(e) e.TakeDamage(5);
+                    }
+                    if(e) e.TakeDamage(1);
                 }
                 else if (CompareTag("ElectricBomb") && hit.collider.CompareTag("WetGround"))
                 {

@@ -11,8 +11,7 @@ public class BurningGround : MonoBehaviour
 
     private List<PlayerHearts> playersInside = new List<PlayerHearts>();
 
-    //TODO: wait for enemy implementation
-    //private List<Enemy> enemiesInside = new List<Enemy>();
+   private List<EnemyHealth> enemiesInside = new List<EnemyHealth>();
 
     private void Start()
     {
@@ -32,14 +31,13 @@ public class BurningGround : MonoBehaviour
                 Debug.Log("Player on fire!");
             }
         }
-
-        //TODO: wait for enemy implementation
-        // if (other.CompareTag("Enemy"))
-        // {
-        //     Enemy eh = other.GetComponent<Enemy>();
-        //     if (eh != null && !enemiesInside.Contains(eh))
-        //         enemiesInside.Add(eh);
-        // }
+        
+        if (other.CompareTag("WaterEnemy") || other.CompareTag( "ElectricEnemy"))
+        {
+            var eh = other.GetComponent<EnemyHealth>();
+            if (eh != null && !enemiesInside.Contains(eh))
+                enemiesInside.Add(eh);
+        }
     }
 
     private void OnTriggerExit(Collider other)
@@ -50,14 +48,13 @@ public class BurningGround : MonoBehaviour
             if (ph != null && playersInside.Contains(ph))
                 playersInside.Remove(ph);
         }
-
-        //TODO: wait for enemy implementation
-        // if (other.CompareTag("Enemy"))
-        // {
-        //     Enemy eh = other.GetComponent<Enemy>();
-        //     if (eh != null && enemiesInside.Contains(eh))
-        //         enemiesInside.Remove(eh);
-        // }
+        
+        if (other.CompareTag("WaterEnemy") || other.CompareTag( "ElectricEnemy"))
+        {
+            var eh = other.GetComponent<EnemyHealth>();
+            if (eh != null && enemiesInside.Contains(eh))
+                enemiesInside.Remove(eh);
+        }
     }
 
     private IEnumerator BurnLoop()
@@ -72,9 +69,9 @@ public class BurningGround : MonoBehaviour
                     Debug.Log("Fire cause damage");
                 }
 
-            //TODO: wait for enemy implementation
-            // foreach (var e in enemiesInside)
-            //     if (e != null) e.TakeDamage(damageAmount);
+            
+            foreach (var e in enemiesInside)
+                if (e != null) e.TakeFloorDamage(damageAmount);
 
             yield return new WaitForSeconds(damageInterval);
         }

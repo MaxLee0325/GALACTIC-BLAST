@@ -51,6 +51,18 @@ public class EnemyHealth : MonoBehaviour
         }
     }
 
+    public void TakeFloorDamage(int amount = 1)
+    {
+        if (isDead) return;
+        
+        currentHealth -= amount;
+        currentHealth = Mathf.Max(0, currentHealth);
+
+        if (currentHealth == 0)
+        {
+            Die();
+        }
+    }
     IEnumerator HitStun()
     {
         isStunned = true;
@@ -129,6 +141,7 @@ public class EnemyHealth : MonoBehaviour
         Collider col = GetComponent<Collider>();
         if (col) col.enabled = false;
 
+        GameManager.Instance.OnEnemyDeath();
         if (destroyOnDeath)
             Destroy(gameObject, deathDelay);
     }
